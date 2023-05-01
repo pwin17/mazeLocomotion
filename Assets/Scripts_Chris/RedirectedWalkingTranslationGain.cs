@@ -34,24 +34,42 @@ public class RedirectedWalkingTranslationGain : MonoBehaviour
 
     void Update()
     {
-        Vector3 leftControllerDelta = leftController.position - previousLeftHeadPosition;
-        Vector3 rightControllerDelta = rightController.position - previousRightHeadPosition;
-        Debug.Log("left :" + leftControllerDelta.magnitude);
-        Debug.Log("right :" + rightControllerDelta.magnitude);
-        if (leftControllerDelta.magnitude > walkingThreshold || rightControllerDelta.magnitude > walkingThreshold)
+        float rightPressed = OVRInput.Get(OVRInput.Axis1D.PrimaryHandTrigger, OVRInput.Controller.RTouch);
+        float leftPressed = OVRInput.Get(OVRInput.Axis1D.PrimaryHandTrigger, OVRInput.Controller.LTouch);
+        if (leftPressed > 0.1f)
         {
-            Vector3 averageDirection = (leftControllerDelta + rightControllerDelta) / 2;
-            Vector3 userFacingDirection = centerEyeAnchor.forward;
-            userFacingDirection.y = 0;
-            userFacingDirection.Normalize();
-
-            Vector3 movementDirection = userFacingDirection * averageDirection.magnitude;
-            Debug.Log("movementDirection :" + movementDirection);
-            transform.position += movementDirection * movementSpeed;
+            float rotationSpeed = -25.0f * Time.deltaTime;
+            transform.Rotate(Vector3.up, rotationSpeed);
         }
+        else if (rightPressed > 0.1f)
+        {
+            float rotationSpeed = 25.0f * Time.deltaTime;
+            transform.Rotate(Vector3.up, rotationSpeed);
+        }
+        else
+        {
+            Vector3 leftControllerDelta = leftController.position - previousLeftHeadPosition;
+            Vector3 rightControllerDelta = rightController.position - previousRightHeadPosition;
+            if (leftControllerDelta.magnitude > walkingThreshold || rightControllerDelta.magnitude > walkingThreshold)
+            {
+                Debug.Log("left :" + leftControllerDelta.magnitude);
+                Debug.Log("right :" + rightControllerDelta.magnitude);
+                Vector3 averageDirection = (leftControllerDelta + rightControllerDelta) / 2;
+                Vector3 userFacingDirection = centerEyeAnchor.forward;
+                Debug.Log(userFacingDirection);
+                userFacingDirection.y = 0;
+                userFacingDirection.x = 0;
+                userFacingDirection.Normalize();
 
-        previousLeftHeadPosition = leftController.position;
-        previousRightHeadPosition = rightController.position;
+                Vector3 movementDirection = userFacingDirection * averageDirection.magnitude;
+                Debug.Log("movementDirection :" + movementDirection);
+                Debug.Log("transform.position :" + transform.position);
+                transform.position += movementDirection * movementSpeed;
+            }
+
+            previousLeftHeadPosition = leftController.position;
+            previousRightHeadPosition = rightController.position;
+        }
     }
 
     private float CalculateDynamicTranslationGain(Vector3 headPosition)
