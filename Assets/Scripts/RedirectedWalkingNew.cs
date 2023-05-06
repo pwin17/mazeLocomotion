@@ -20,8 +20,11 @@ public class RedirectedWalkingNew : MonoBehaviour
     private Vector3 previousLeftHeadPosition;
     private Vector3 previousRightHeadPosition;
     public float movementSpeed = 12.0f;
-
+    public float TranslationGain = 5.0f;
     private float initialForwardRotation;
+    GameObject resetParentObj;
+    GameObject VE;
+    bool isResetting = false;
 
     void Start()
     {
@@ -38,49 +41,44 @@ public class RedirectedWalkingNew : MonoBehaviour
             previousHeadPosition = centerEyeAnchor.position;
             initialForwardRotation = centerEyeAnchor.eulerAngles.y;
         }
+        resetParentObj = new GameObject("Reset Parent Obj"); 
+        VE = GameObject.Find("VE");
         
     }
 
     void Update()
     {
-        float rightPressed = OVRInput.Get(OVRInput.Axis1D.PrimaryHandTrigger, OVRInput.Controller.RTouch);
-        float leftPressed = OVRInput.Get(OVRInput.Axis1D.PrimaryHandTrigger, OVRInput.Controller.LTouch);
-        if (leftPressed > 0.1f)
+        if (Input.GetKeyUp(KeyCode.R))
         {
-            float rotationSpeed = -25.0f * Time.deltaTime;
-            transform.Rotate(Vector3.up, rotationSpeed);
+            isResetting = !isResetting;
+            if (isResetting)
+            {
+                resetParentObj.transform.position = centerEyeAnchor.position;
+                resetParentObj.transform.forward = new Vector3(centerEyeAnchor.forward.x, 0.0f, centerEyeAnchor.forward.z);
+                VE.transform.parent = resetParentObj.transform;
+            }
+            else
+            {
+                VE.transform.parent = null;
+            }
+            
         }
-        else if (rightPressed > 0.1f)
+        if (isResetting)
         {
-            float rotationSpeed = 25.0f * Time.deltaTime;
-            transform.Rotate(Vector3.up, rotationSpeed);
+            resetParentObj.transform.forward = new Vector3(centerEyeAnchor.forward.x, 0.0f, centerEyeAnchor.forward.z);
+            resetParentObj.transform.position = centerEyeAnchor.position;
         }
         else
         {
             Vector3 leftControllerDelta = leftController.position - previousLeftHeadPosition;
             Vector3 rightControllerDelta = rightController.position - previousRightHeadPosition;
-            // Debug.Log("left :" + leftControllerDelta.magnitude);
-            // Debug.Log("right :" + rightControllerDelta.magnitude);
+            Debug.Log("left :" + leftControllerDelta.magnitude);
+            Debug.Log("right :" + rightControllerDelta.magnitude);
 
             if (leftControllerDelta.magnitude > walkingThreshold || rightControllerDelta.magnitude > walkingThreshold)
             {
-                Vector3 averageDirection = (leftControllerDelta + rightControllerDelta) / 2;
-                Vector3 userFacingDirection = centerEyeAnchor.forward;
-                userFacingDirection.y = 0;
-                userFacingDirection.x = 0;
-                userFacingDirection.Normalize();
-
-                Vector3 movementDirection = userFacingDirection * averageDirection.magnitude;
-                // Debug.Log("transform position: " + transform.position);
-                transform.position += movementDirection * movementSpeed * CalculateDynamicTranslationGain(centerEyeAnchor.position) * Time.deltaTime;
-
-                float currentForwardRotation = centerEyeAnchor.eulerAngles.y;
-                float rotationDelta = Mathf.DeltaAngle(initialForwardRotation, currentForwardRotation);
-                float rotationGain = CalculateDynamicRotationGain(centerEyeAnchor.position);
-
-                //transform.Rotate(0, rotationDelta * (rotationGain - 1) * Time.deltaTime, 0);
-
-                initialForwardRotation = currentForwardRotation;
+                ApplyTranslationGain(leftControllerDelta, rightControllerDelta);
+                ApplyRotationGain();
             }
 
             previousLeftHeadPosition = leftController.position;
@@ -117,5 +115,31 @@ public class RedirectedWalkingNew : MonoBehaviour
         float maxDistance = playAreaSize / 2.0f;
         float dynamicRotationGain = Mathf.Lerp(minRotationGain, maxRotationGain, distanceToCenter / maxDistance);
         return dynamicRotationGain;
+    }
+
+
+    private void ApplyTranslationGain(Vector3 leftControllerDelta, Vector3 rightControllerDelta)
+    {
+        Vector3 averageDirection = (leftControllerDelta + rightControllerDelta) / 2;
+        Vector3 userFacingDirection = centerEyeAnchor.forward;
+        userFacingDirection.y = 0;
+        userFacingDirection.x = 0;
+        userFacingDirection.Normalize();
+
+        Vector3 movementDirection = userFacingDirection;// * averageDirection.magnitude;
+        // Debug.Log("transform position: " + transform.position);
+        // transform.position += movementDirection * movementSpeed * CalculateDynamicTranslationGain(centerEyeAnchor.position) * Time.deltaTime;
+        transform.position += movementDirection * movementSpeed * TranslationGain * Time.deltaTime;
+    }
+
+    private void ApplyRotationGain()
+    {
+        float currentForwardRotation = centerEyeAnchor.eulerAngles.y;
+        float rotationDelta = Mathf.DeltaAngle(initialForwardRotation, currentForwardRotation);
+        float rotationGain = CalculateDynamicRotationGain(centerEyeAnchor.position);
+
+        //transform.Rotate(0, rotationDelta * (rotationGain - 1) * Time.deltaTime, 0);
+
+        initialForwardRotation = currentForwardRotation;
     }
 }

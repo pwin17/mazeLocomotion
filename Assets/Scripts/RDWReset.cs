@@ -5,6 +5,7 @@ using UnityEngine;
 public class RDWReset : MonoBehaviour
 {
     bool isResetting = false;
+    // GameObject trackingSpace;
     GameObject resetParentObj;
     GameObject hmd;
     GameObject VE;
@@ -14,8 +15,10 @@ public class RDWReset : MonoBehaviour
     GameObject westBorder;
     GameObject southBorder;
 
-    static float PE_SHORT_DIMENSION = 4.3f;
-    static float PE_LONG_DIMENSION = 6.125F;
+    // static float PE_SHORT_DIMENSION = 4.3f;
+    // static float PE_LONG_DIMENSION = 6.125F;
+    static float PE_SHORT_DIMENSION = 4.0f;
+    static float PE_LONG_DIMENSION = 6.0f   ;
 
     float ELLIPSE_Y_RADIUS = PE_LONG_DIMENSION / 2.0f;
     float ELLIPSE_X_RADIUS = PE_SHORT_DIMENSION / 2.0f;
@@ -26,6 +29,7 @@ public class RDWReset : MonoBehaviour
         resetParentObj = new GameObject("Reset Parent Obj"); 
         hmd = GameObject.Find("CenterEyeAnchor");  
         VE = GameObject.Find("VE");
+        // trackingSpace = GameObject.Find("TrackingSpace");
     }
 
     // Update is called once per frame
@@ -60,6 +64,8 @@ public class RDWReset : MonoBehaviour
     void CenterEnv()
     {
         Vector3 curPos = hmd.transform.position;
+        Debug.Log("=================================================");
+        Debug.Log("current position " + curPos);
         Vector3 curForward = hmd.transform.forward;
         float headingTheta = Mathf.Atan2(curForward.z, curForward.x);
         float offsetToNorth = Vector2.SignedAngle(new Vector2(curForward.x, curForward.z), new Vector2(0.0f, 1.0f));
@@ -98,6 +104,11 @@ public class RDWReset : MonoBehaviour
         eastBorder.name = "East Border";
         northBorder.name = "North Border";
         southBorder.name = "South Border";
+        Debug.Log("north boarder " + northBorder.transform.position);
+        Debug.Log("south boarder " + southBorder.transform.position);
+        Debug.Log("east boarder " + eastBorder.transform.position);
+        Debug.Log("west boarder " + westBorder.transform.position);
+        Debug.Log("=================================================");
 
     }
 }
