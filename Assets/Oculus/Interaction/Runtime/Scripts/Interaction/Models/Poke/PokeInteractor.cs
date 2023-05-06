@@ -412,7 +412,8 @@ namespace Oculus.Interaction
                             continue;
                         }
 
-                        if (normalDistance < closestNormalDistance - interactable.CloseDistanceThreshold)
+                        if (closestInteractable == null ||
+                            normalDistance < closestNormalDistance - closestInteractable.CloseDistanceThreshold)
                         {
                             closestNormalDistance = normalDistance;
                             closestTangentDistance = tangentDistance;
@@ -622,18 +623,16 @@ namespace Oculus.Interaction
                             }
                         }
 
-                        float closeThreshold = interactable.CloseDistanceThreshold;
-                        bool normalDistanceClose =
-                            Mathf.Abs(normalDistance - closestNormalDistance) < closeThreshold;
-
                         // If normal distance is greater than closest normal distance by over closeDistanceThreshold
-                        if (normalDistance > closestNormalDistance + closeThreshold)
+                        if (normalDistance > closestNormalDistance + interactable.CloseDistanceThreshold)
                         {
                             continue;
                         }
 
                         // If normal distance is less than closest normal distance by over closeDistanceThreshold
-                        if(normalDistance < closestNormalDistance - closeThreshold)
+                        // of the best closest interactable's close distance threshold
+                        if(closestInteractable == null || normalDistance < closestNormalDistance -
+                            closestInteractable.CloseDistanceThreshold)
                         {
                             closestInteractable = interactable;
                             closestNormalDistance = normalDistance;
@@ -742,7 +741,7 @@ namespace Oculus.Interaction
             Vector3 projOnNormal = Vector3.Dot(proximityToPoint, backingHit.Normal) *
                 backingHit.Normal;
             Vector3 lateralVec = proximityToPoint - projOnNormal;
-            return Mathf.Max(lateralVec.magnitude - _radius, 0f);
+            return lateralVec.magnitude - _radius;
         }
 
         // Returns if poke origin is still considered to be within the surface.

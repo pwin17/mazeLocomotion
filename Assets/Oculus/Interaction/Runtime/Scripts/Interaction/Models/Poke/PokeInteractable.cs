@@ -27,12 +27,9 @@ namespace Oculus.Interaction
 {
     public class PokeInteractable : PointerInteractable<PokeInteractor, PokeInteractable>
     {
-        [SerializeField, Interface(typeof(IPointableElement)), Optional]
-        private MonoBehaviour _pointableElement;
-
         [Tooltip("Represents the pokeable surface area of this interactable.")]
         [SerializeField, Interface(typeof(ISurfacePatch))]
-        private MonoBehaviour _surfacePatch;
+        private UnityEngine.Object _surfacePatch;
         public ISurfacePatch SurfacePatch { get; private set; }
 
         [SerializeField]
@@ -331,7 +328,6 @@ namespace Oculus.Interaction
         {
             base.Awake();
             SurfacePatch = _surfacePatch as ISurfacePatch;
-            PointableElement = _pointableElement as IPointableElement;
         }
 
         protected override void Start()
@@ -359,11 +355,6 @@ namespace Oculus.Interaction
                     Mathf.Min(_minThresholds.MinNormal,
                     _enterHoverNormal);
             }
-            if (_pointableElement != null)
-            {
-                this.AssertField(PointableElement, nameof(PointableElement));
-            }
-
             this.EndStart(ref _started);
         }
 
@@ -386,15 +377,10 @@ namespace Oculus.Interaction
 
         public void InjectSurfacePatch(ISurfacePatch surfacePatch)
         {
-            _surfacePatch = surfacePatch as MonoBehaviour;
+            _surfacePatch = surfacePatch as UnityEngine.Object;
             SurfacePatch = surfacePatch;
         }
 
-        public void InjectOptionalPointableElement(IPointableElement pointableElement)
-        {
-            PointableElement = pointableElement;
-            _pointableElement = pointableElement as MonoBehaviour;
-        }
         #endregion
     }
 }

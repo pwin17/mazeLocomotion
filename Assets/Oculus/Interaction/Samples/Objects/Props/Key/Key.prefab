@@ -44,7 +44,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 622db80eec0bd344f920b1aa056ae8d0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _relativeTo: {fileID: 2720035132689322368}
+  _relativePose:
+    position: {x: -0.04073883, y: -0.031130088, z: -0.16541404}
+    rotation: {x: 0.3992369, y: 0.5498387, z: -0.7142691, w: 0.16765234}
   _surface: {fileID: 0}
   _usesHandPose: 1
   _handPose:
@@ -68,6 +70,7 @@ MonoBehaviour:
     - {x: 0.07268512, y: 0.020210747, z: -0.6646412, w: 0.7433442}
     - {x: -0.086037695, y: 0.0073546483, z: -0.6430303, w: 0.76095694}
     - {x: 0.0023430234, y: -0.042328585, z: -0.49613467, w: 0.8672101}
+  _relativeTo: {fileID: 2720035132689322368}
 --- !u!1 &273935207303783535
 GameObject:
   m_ObjectHideFlags: 0
@@ -152,8 +155,8 @@ MonoBehaviour:
   _data: {fileID: 0}
   _pointableElement: {fileID: 2127621401763312286}
   _rigidbody: {fileID: 9159541282209887598}
-  _resetGrabOnGrabsUpdated: 1
   _physicsGrabbable: {fileID: 0}
+  _resetGrabOnGrabsUpdated: 1
   _scoringModifier:
     _positionRotationWeight: 0
   _supportedGrabTypes: 1
@@ -220,7 +223,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 622db80eec0bd344f920b1aa056ae8d0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _relativeTo: {fileID: 2720035132689322368}
+  _relativePose:
+    position: {x: -0.032952018, y: -0.025316522, z: -0.14577484}
+    rotation: {x: 0.399237, y: 0.54983866, z: -0.7142691, w: 0.16765234}
   _surface: {fileID: 0}
   _usesHandPose: 1
   _handPose:
@@ -244,6 +249,7 @@ MonoBehaviour:
     - {x: 0.07268512, y: 0.020210747, z: -0.6646412, w: 0.7433442}
     - {x: -0.086037695, y: 0.0073546483, z: -0.6430303, w: 0.76095694}
     - {x: 0.0023430234, y: -0.042328585, z: -0.49613467, w: 0.8672101}
+  _relativeTo: {fileID: 2720035132689322368}
 --- !u!1 &574704295543909804
 GameObject:
   m_ObjectHideFlags: 0
@@ -287,7 +293,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 622db80eec0bd344f920b1aa056ae8d0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _relativeTo: {fileID: 2720035132689322368}
+  _relativePose:
+    position: {x: -0.04073888, y: 0.03273035, z: -0.16541407}
+    rotation: {x: 0.71426874, y: -0.16765413, z: 0.39923555, w: 0.54983956}
   _surface: {fileID: 0}
   _usesHandPose: 1
   _handPose:
@@ -311,6 +319,7 @@ MonoBehaviour:
     - {x: 0.07268512, y: 0.020210747, z: -0.6646412, w: 0.7433442}
     - {x: -0.086037695, y: 0.0073546483, z: -0.6430303, w: 0.76095694}
     - {x: 0.0023430234, y: -0.042328585, z: -0.49613467, w: 0.8672101}
+  _relativeTo: {fileID: 2720035132689322368}
 --- !u!1 &1836455805998394337
 GameObject:
   m_ObjectHideFlags: 0
@@ -355,7 +364,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 622db80eec0bd344f920b1aa056ae8d0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _relativeTo: {fileID: 2720035132689322368}
+  _relativePose:
+    position: {x: -0.025217181, y: -0.021008745, z: -0.12613666}
+    rotation: {x: 0.3992369, y: 0.5498387, z: -0.7142691, w: 0.16765234}
   _surface: {fileID: 0}
   _usesHandPose: 1
   _handPose:
@@ -379,6 +390,7 @@ MonoBehaviour:
     - {x: 0.07268512, y: 0.020210747, z: -0.6646412, w: 0.7433442}
     - {x: -0.086037695, y: 0.0073546483, z: -0.6430303, w: 0.76095694}
     - {x: 0.0023430234, y: -0.042328585, z: -0.49613467, w: 0.8672101}
+  _relativeTo: {fileID: 2720035132689322368}
 --- !u!1 &3191559422423961542
 GameObject:
   m_ObjectHideFlags: 0
@@ -422,7 +434,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 622db80eec0bd344f920b1aa056ae8d0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _relativeTo: {fileID: 2720035132689322368}
+  _relativePose:
+    position: {x: -0.03295207, y: 0.02691675, z: -0.14577484}
+    rotation: {x: 0.71426874, y: -0.16765411, z: 0.39923558, w: 0.54983956}
   _surface: {fileID: 0}
   _usesHandPose: 1
   _handPose:
@@ -446,6 +460,7 @@ MonoBehaviour:
     - {x: 0.07268512, y: 0.020210747, z: -0.6646412, w: 0.7433442}
     - {x: -0.086037695, y: 0.0073546483, z: -0.6430303, w: 0.76095694}
     - {x: 0.0023430234, y: -0.042328585, z: -0.49613467, w: 0.8672101}
+  _relativeTo: {fileID: 2720035132689322368}
 --- !u!1 &3383418444488100666
 GameObject:
   m_ObjectHideFlags: 0
@@ -950,7 +965,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 622db80eec0bd344f920b1aa056ae8d0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _relativeTo: {fileID: 2720035132689322368}
+  _relativePose:
+    position: {x: -0.025217235, y: 0.022608912, z: -0.12613672}
+    rotation: {x: 0.71426874, y: -0.16765413, z: 0.39923555, w: 0.54983956}
   _surface: {fileID: 0}
   _usesHandPose: 1
   _handPose:
@@ -974,6 +991,7 @@ MonoBehaviour:
     - {x: 0.07268512, y: 0.020210747, z: -0.6646412, w: 0.7433442}
     - {x: -0.086037695, y: 0.0073546483, z: -0.6430303, w: 0.76095694}
     - {x: 0.0023430234, y: -0.042328585, z: -0.49613467, w: 0.8672101}
+  _relativeTo: {fileID: 2720035132689322368}
 --- !u!1 &7264946655354644734
 GameObject:
   m_ObjectHideFlags: 0
@@ -1026,8 +1044,8 @@ MonoBehaviour:
   _data: {fileID: 0}
   _pointableElement: {fileID: 2127621401763312286}
   _rigidbody: {fileID: 9159541282209887598}
-  _resetGrabOnGrabsUpdated: 1
   _physicsGrabbable: {fileID: 0}
+  _resetGrabOnGrabsUpdated: 1
   _scoringModifier:
     _positionRotationWeight: 0
   _supportedGrabTypes: 1

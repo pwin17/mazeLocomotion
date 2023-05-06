@@ -29,7 +29,7 @@ namespace Oculus.Interaction.Editor
 {
     public class SimplifiedEditor : UnityEditor.Editor
     {
-        private EditorBase _editorDrawer;
+        protected EditorBase _editorDrawer;
         private const string OptionalSection = "Optionals";
 
         protected virtual void OnEnable()
