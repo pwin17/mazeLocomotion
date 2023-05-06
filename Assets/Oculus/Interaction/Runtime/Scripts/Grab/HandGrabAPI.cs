@@ -19,7 +19,11 @@
  */
 
 using Oculus.Interaction.Input;
+using System;
+using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace Oculus.Interaction.GrabAPI
 {
@@ -31,12 +35,12 @@ namespace Oculus.Interaction.GrabAPI
     public class HandGrabAPI : MonoBehaviour
     {
         [SerializeField, Interface(typeof(IHand))]
-        private UnityEngine.Object _hand;
+        private MonoBehaviour _hand;
 
         public IHand Hand { get; private set; }
 
         [SerializeField, Interface(typeof(IHmd)), Optional]
-        private UnityEngine.Object _hmd;
+        private MonoBehaviour _hmd;
 
         public IHmd Hmd { get; private set; } = null;
 
@@ -268,24 +272,22 @@ namespace Oculus.Interaction.GrabAPI
 
         public Vector3 GetPinchCenter()
         {
-            Vector3 localOffset = _fingerPinchGrabAPI.GetWristOffsetLocal();
-            return WristOffsetToWorldPoint(localOffset);
+            return WristOffsetToWorldPoint(_fingerPinchGrabAPI.GetCenterOffset());
         }
 
         public Vector3 GetPalmCenter()
         {
-            Vector3 localOffset = _fingerPalmGrabAPI.GetWristOffsetLocal();
-            return WristOffsetToWorldPoint(localOffset);
+            return WristOffsetToWorldPoint(_fingerPalmGrabAPI.GetCenterOffset());
         }
 
-        private Vector3 WristOffsetToWorldPoint(Vector3 localOffset)
+        private Vector3 WristOffsetToWorldPoint(Vector3 offset)
         {
             if (!Hand.GetJointPose(HandJointId.HandWristRoot, out Pose wristPose))
             {
-                return localOffset * Hand.Scale;
+                return offset;
             }
 
-            return wristPose.position + wristPose.rotation * localOffset * Hand.Scale;
+            return wristPose.position + wristPose.rotation * offset;
         }
 
         public float GetHandPinchScore(in GrabbingRule fingers,
@@ -351,14 +353,14 @@ namespace Oculus.Interaction.GrabAPI
 
         public void InjectHand(IHand hand)
         {
-            _hand = hand as UnityEngine.Object;
+            _hand = hand as MonoBehaviour;
             Hand = hand;
         }
 
         public void InjectOptionalHmd(IHmd hmd)
         {
             Hmd = hmd;
-            _hmd = hmd as UnityEngine.Object;
+            _hmd = hmd as MonoBehaviour;
         }
 
         public void InjectOptionalFingerPinchAPI(IFingerAPI fingerPinchAPI)

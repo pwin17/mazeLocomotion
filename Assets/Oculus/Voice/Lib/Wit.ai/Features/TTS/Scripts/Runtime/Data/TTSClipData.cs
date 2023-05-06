@@ -29,7 +29,7 @@ namespace Meta.WitAi.TTS.Data
         // Unique identifier
         public string clipID;
         // Audio type
-        public AudioType audioType;
+        public AudioType audioType = AudioType.WAV; // Default
         // Voice settings for request
         public TTSVoiceSettings voiceSettings;
         // Cache settings for request
@@ -75,7 +75,7 @@ namespace Meta.WitAi.TTS.Data
         /// </summary>
         public bool Equals(TTSClipData other)
         {
-            return HasClipId(other?.clipID);
+            return HasClipId(other.clipID);
         }
         /// <summary>
         /// Compare clip ids
@@ -94,5 +94,7 @@ namespace Meta.WitAi.TTS.Data
             hash = hash * 31 + clipID.GetHashCode();
             return hash;
         }
+
+
     }
 }

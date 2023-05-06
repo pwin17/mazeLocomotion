@@ -31,7 +31,7 @@ namespace Oculus.Interaction
     public class TransformFeatureStateProviderRef : MonoBehaviour, ITransformFeatureStateProvider
     {
         [SerializeField, Interface(typeof(ITransformFeatureStateProvider))]
-        private UnityEngine.Object _transformFeatureStateProvider;
+        private MonoBehaviour _transformFeatureStateProvider;
 
         public ITransformFeatureStateProvider TransformFeatureStateProvider { get; private set; }
 
@@ -81,7 +81,7 @@ namespace Oculus.Interaction
 
         public void InjectTransformFeatureStateProvider(ITransformFeatureStateProvider transformFeatureStateProvider)
         {
-            _transformFeatureStateProvider = transformFeatureStateProvider as UnityEngine.Object;
+            _transformFeatureStateProvider = transformFeatureStateProvider as MonoBehaviour;
             TransformFeatureStateProvider = transformFeatureStateProvider;
         }
         #endregion

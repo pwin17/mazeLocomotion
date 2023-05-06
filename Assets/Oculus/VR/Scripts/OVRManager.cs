@@ -177,10 +177,6 @@ public class OVRManager : MonoBehaviour, OVRMixedRealityCaptureConfiguration
 	}
 
 
-    public interface EventListener
-    {
-        void OnEvent(OVRPlugin.EventDataBuffer eventData);
-    }
 
     /// <summary>
     /// Gets the singleton instance.
@@ -343,7 +339,6 @@ public class OVRManager : MonoBehaviour, OVRMixedRealityCaptureConfiguration
     /// @params (UInt64 requestId, bool result)
     /// </summary>
     public static event Action<UInt64, bool> SceneCaptureComplete;
-
 
 
 
@@ -1187,36 +1182,10 @@ public class OVRManager : MonoBehaviour, OVRMixedRealityCaptureConfiguration
         }
         set
         {
-            if (eyeTrackedFoveatedRenderingSupported)
+            if (OVRPermissionsRequester.IsPermissionGranted(OVRPermissionsRequester.Permission.EyeTracking))
             {
-                if (value)
-                {
-                    if (OVRPermissionsRequester.IsPermissionGranted(OVRPermissionsRequester.Permission.EyeTracking))
-                    {
-                        OVRPlugin.eyeTrackedFoveatedRenderingEnabled = value;
-                    }
-#if OCULUS_XR_ETFR_DELAYED_PERMISSION_REQUEST
-                    else
-                    {
-                        OVRPermissionsRequester.PermissionGranted += OnPermissionGranted;
-                        OVRPermissionsRequester.Request(new List<OVRPermissionsRequester.Permission> { OVRPermissionsRequester.Permission.EyeTracking });
-                    }
-#endif
-                }
-                else
-                {
-                    OVRPlugin.eyeTrackedFoveatedRenderingEnabled = value;
-                }
+                OVRPlugin.eyeTrackedFoveatedRenderingEnabled = value;
             }
-        }
-    }
-
-    private static void OnPermissionGranted(string permissionId)
-    {
-        if (permissionId == OVRPermissionsRequester.GetPermissionId(OVRPermissionsRequester.Permission.EyeTracking))
-        {
-            OVRPermissionsRequester.PermissionGranted -= OnPermissionGranted;
-            OVRPlugin.eyeTrackedFoveatedRenderingEnabled = true;
         }
     }
 
@@ -1589,17 +1558,6 @@ public class OVRManager : MonoBehaviour, OVRMixedRealityCaptureConfiguration
 
     private static OVRPlugin.EventDataBuffer eventDataBuffer = new OVRPlugin.EventDataBuffer();
 
-    private HashSet<EventListener> eventListeners = new HashSet<EventListener>();
-
-    public void RegisterEventListener(EventListener listener)
-    {
-        eventListeners.Add(listener);
-    }
-
-    public void DeregisterEventListener(EventListener listener)
-    {
-        eventListeners.Remove(listener);
-    }
 
     public static System.Version utilitiesVersion
     {
@@ -2318,14 +2276,6 @@ public class OVRManager : MonoBehaviour, OVRMixedRealityCaptureConfiguration
         wasPositionTracked = tracker.isPositionTracked;
 
         display.Update();
-
-#if UNITY_EDITOR
-        if (Application.isBatchMode)
-        {
-            OVRPlugin.UpdateInBatchMode();
-        }
-#endif
-
         OVRInput.Update();
 
         UpdateHMDEvents();
@@ -2435,10 +2385,6 @@ public class OVRManager : MonoBehaviour, OVRMixedRealityCaptureConfiguration
                     }
                     break;
                 default:
-                    foreach (var listener in eventListeners)
-                    {
-                        listener.OnEvent(eventDataBuffer);
-                    }
                     break;
             }
         }

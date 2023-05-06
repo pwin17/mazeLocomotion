@@ -8,7 +8,6 @@
 
 using Meta.WitAi.Configuration;
 using Meta.WitAi.Dictation.Events;
-using Meta.WitAi.Events;
 using Meta.WitAi.Events.UnityEventListeners;
 using Meta.WitAi.Interfaces;
 using UnityEngine;
@@ -18,13 +17,7 @@ namespace Meta.WitAi.Dictation
     public abstract class DictationService : MonoBehaviour, IDictationService, IAudioEventProvider, ITranscriptionEventProvider
     {
         [Tooltip("Events that will fire before, during and after an activation")]
-        [SerializeField] protected DictationEvents dictationEvents = new DictationEvents();
-
-        ///<summary>
-        /// Internal events used to report telemetry. These events are reserved for internal
-        /// use only and should not be used for any other purpose.
-        /// </summary>
-        protected TelemetryEvents telemetryEvents = new TelemetryEvents();
+        [SerializeField] public DictationEvents dictationEvents = new DictationEvents();
 
         /// <summary>
         /// Returns true if this voice service is currently active and listening with the mic
@@ -52,8 +45,6 @@ namespace Meta.WitAi.Dictation
             get => dictationEvents;
             set => dictationEvents = value;
         }
-
-        public TelemetryEvents TelemetryEvents { get => telemetryEvents; set => telemetryEvents = value; }
 
         /// <summary>
         /// A subset of events around collection of audio data
@@ -125,7 +116,7 @@ namespace Meta.WitAi.Dictation
         }
     }
 
-    public interface IDictationService: ITelemetryEventsProvider
+    public interface IDictationService
     {
         bool Active { get; }
 
@@ -137,8 +128,6 @@ namespace Meta.WitAi.Dictation
 
         DictationEvents DictationEvents { get; set; }
 
-        new TelemetryEvents TelemetryEvents { get; set; }
-
         void Activate();
 
         void Activate(WitRequestOptions requestOptions);
@@ -148,7 +137,5 @@ namespace Meta.WitAi.Dictation
         void ActivateImmediately(WitRequestOptions requestOptions);
 
         void Deactivate();
-
-        void Cancel();
     }
 }

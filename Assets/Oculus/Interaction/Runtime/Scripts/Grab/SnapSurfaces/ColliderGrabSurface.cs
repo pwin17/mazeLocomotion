@@ -19,6 +19,7 @@
  */
 
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace Oculus.Interaction.Grab.GrabSurfaces
 {
@@ -41,20 +42,19 @@ namespace Oculus.Interaction.Grab.GrabSurfaces
             return _collider.ClosestPoint(targetPosition);
         }
 
-        public GrabPoseScore CalculateBestPoseAtSurface(in Pose targetPose, out Pose bestPose,
-            in PoseMeasureParameters scoringModifier, Transform relativeTo)
+        public GrabPoseScore CalculateBestPoseAtSurface(in Pose targetPose, in Pose referencePose, out Pose bestPose, in PoseMeasureParameters scoringModifier)
         {
             Vector3 surfacePoint = NearestPointInSurface(targetPose.position);
             bestPose = new Pose(surfacePoint, targetPose.rotation);
             return new GrabPoseScore(surfacePoint, targetPose.position);
         }
 
-        public bool CalculateBestPoseAtSurface(Ray targetRay, out Pose bestPose, Transform relativeTo)
+        public bool CalculateBestPoseAtSurface(Ray targetRay, in Pose recordedPose, out Pose bestPose)
         {
             if (_collider.Raycast(targetRay, out RaycastHit hit, Mathf.Infinity))
             {
                 bestPose.position = hit.point;
-                bestPose.rotation = relativeTo.rotation;
+                bestPose.rotation = recordedPose.rotation;
                 return true;
             }
             bestPose = Pose.identity;
@@ -62,7 +62,7 @@ namespace Oculus.Interaction.Grab.GrabSurfaces
         }
 
 
-        public Pose MirrorPose(in Pose gripPose, Transform relativeTo)
+        public Pose MirrorPose(in Pose gripPose)
         {
             return gripPose;
         }
@@ -75,12 +75,12 @@ namespace Oculus.Interaction.Grab.GrabSurfaces
         public IGrabSurface CreateDuplicatedSurface(GameObject gameObject)
         {
             ColliderGrabSurface colliderSurface = gameObject.AddComponent<ColliderGrabSurface>();
-            colliderSurface.InjectAllColliderGrabSurface(_collider);
+            colliderSurface.InjectAllColliderSurface(_collider);
             return colliderSurface;
         }
 
         #region Inject
-        public void InjectAllColliderGrabSurface(Collider collider)
+        public void InjectAllColliderSurface(Collider collider)
         {
             InjectCollider(collider);
         }

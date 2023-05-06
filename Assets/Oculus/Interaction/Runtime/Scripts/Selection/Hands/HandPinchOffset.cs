@@ -27,7 +27,7 @@ namespace Oculus.Interaction
     public class HandPinchOffset : MonoBehaviour
     {
         [SerializeField, Interface(typeof(IHand))]
-        private UnityEngine.Object _hand;
+        private MonoBehaviour _hand;
         public IHand Hand { get; private set; }
 
         [SerializeField]
@@ -92,7 +92,7 @@ namespace Oculus.Interaction
         public void InjectHand(IHand hand)
         {
             Hand = hand;
-            _hand = hand as UnityEngine.Object;
+            _hand = hand as MonoBehaviour;
         }
 
         public void InjectHandGrabAPI(HandGrabAPI handGrabApi)

@@ -167,10 +167,21 @@ public class OVRSpatialAnchor : MonoBehaviour
 	{
 		var count = anchors.Count;
 		var spaces = new NativeArray<ulong>(count, Allocator.Temp);
-		var i = 0;
-		foreach (var anchor in anchors.ToNonAlloc())
+		if (anchors is IReadOnlyList<OVRSpatialAnchor> list)
 		{
-			spaces[i++] = anchor ? anchor.Space : 0;
+			// We can save a GC alloc (the Enumerator<T>) if it can be used as a list.
+			for (var i = 0; i < count; i++)
+			{
+				spaces[i] = list[i] ? list[i].Space : 0;
+			}
+		}
+		else
+		{
+			var i = 0;
+			foreach (var anchor in anchors)
+			{
+				spaces[i++] = anchor ? anchor.Space : 0;
+			}
 		}
 
 		return spaces;
@@ -248,6 +259,7 @@ public class OVRSpatialAnchor : MonoBehaviour
 		IEnumerable<OVRSpatialAnchor> anchorList)
 	{
 		var poolList = OVRObjectPool.Get<List<OVRSpatialAnchor>>();
+		poolList.Clear();
 		poolList.AddRange(anchorList);
 		return poolList;
 	}
@@ -267,6 +279,7 @@ public class OVRSpatialAnchor : MonoBehaviour
 	public void Share(OVRSpaceUser user, Action<OperationResult> onComplete = null)
 	{
 		var userList = OVRObjectPool.Get<List<OVRSpaceUser>>();
+		userList.Clear();
 		userList.Add(user);
 		ShareInternal(userList, onComplete);
 	}
@@ -287,6 +300,7 @@ public class OVRSpatialAnchor : MonoBehaviour
 	public void Share(OVRSpaceUser user1, OVRSpaceUser user2, Action<OperationResult> onComplete = null)
 	{
 		var userList = OVRObjectPool.Get<List<OVRSpaceUser>>();
+		userList.Clear();
 		userList.Add(user1);
 		userList.Add(user2);
 		ShareInternal(userList, onComplete);
@@ -309,6 +323,7 @@ public class OVRSpatialAnchor : MonoBehaviour
 	public void Share(OVRSpaceUser user1, OVRSpaceUser user2, OVRSpaceUser user3, Action<OperationResult> onComplete = null)
 	{
 		var userList = OVRObjectPool.Get<List<OVRSpaceUser>>();
+		userList.Clear();
 		userList.Add(user1);
 		userList.Add(user2);
 		userList.Add(user3);
@@ -333,6 +348,7 @@ public class OVRSpatialAnchor : MonoBehaviour
 	public void Share(OVRSpaceUser user1, OVRSpaceUser user2, OVRSpaceUser user3, OVRSpaceUser user4, Action<OperationResult> onComplete = null)
 	{
 		var userList = OVRObjectPool.Get<List<OVRSpaceUser>>();
+		userList.Clear();
 		userList.Add(user1);
 		userList.Add(user2);
 		userList.Add(user3);
@@ -355,7 +371,11 @@ public class OVRSpatialAnchor : MonoBehaviour
 	public void Share(ICollection<OVRSpaceUser> users, Action<OperationResult> onComplete = null)
 	{
 		var userList = OVRObjectPool.Get<List<OVRSpaceUser>>();
-		userList.AddRange(users);
+		userList.Clear();
+		foreach (var user in users)
+		{
+			userList.Add(user);
+		}
 
 		ShareInternal(userList, onComplete);
 	}
@@ -434,6 +454,7 @@ public class OVRSpatialAnchor : MonoBehaviour
 
 		// add a new request
 		var anchorList = OVRObjectPool.Get<List<OVRSpatialAnchor>>();
+		anchorList.Clear();
 		ShareRequests.Add((users, anchorList));
 		return anchorList;
 	}

@@ -28,7 +28,7 @@ namespace Oculus.Interaction
     public class ControllerOffset : MonoBehaviour
     {
         [SerializeField, Interface(typeof(IController))]
-        private UnityEngine.Object _controller;
+        private MonoBehaviour _controller;
         public IController Controller { get; private set; }
 
         [SerializeField]
@@ -93,7 +93,7 @@ namespace Oculus.Interaction
 
         public void InjectController(IController controller)
         {
-            _controller = controller as UnityEngine.Object;
+            _controller = controller as MonoBehaviour;
             Controller = controller;
         }
 

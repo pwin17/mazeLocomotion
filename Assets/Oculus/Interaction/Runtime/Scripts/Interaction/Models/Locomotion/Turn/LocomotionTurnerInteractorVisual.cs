@@ -29,11 +29,11 @@ namespace Oculus.Interaction.Locomotion
         private LocomotionTurnerInteractor _turner;
 
         [SerializeField, Optional, Interface(typeof(IAxis1D))]
-        private UnityEngine.Object _progress;
+        private MonoBehaviour _progress;
         private IAxis1D Progress;
 
         [SerializeField, Interface(typeof(IActiveState)), Optional]
-        private UnityEngine.Object _highlight;
+        private MonoBehaviour _highlight;
         private IActiveState Highlight;
 
         [SerializeField]
@@ -203,7 +203,7 @@ namespace Oculus.Interaction.Locomotion
 
         public void InjectOptionalHighlight(IActiveState highlight)
         {
-            _highlight = highlight as UnityEngine.Object;
+            _highlight = highlight as MonoBehaviour;
             Highlight = highlight;
         }
 
@@ -219,7 +219,7 @@ namespace Oculus.Interaction.Locomotion
 
         public void InjectOptionalProgress(IAxis1D progress)
         {
-            _progress = progress as UnityEngine.Object;
+            _progress = progress as MonoBehaviour;
             Progress = progress;
         }
         #endregion

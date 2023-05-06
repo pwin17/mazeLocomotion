@@ -28,7 +28,7 @@ namespace Oculus.Interaction
     public class GrabStrengthIndicator : MonoBehaviour
     {
         [SerializeField, Interface(typeof(IHandGrabber), typeof(IInteractor))]
-        private UnityEngine.Object _handGrabInteractor;
+        private MonoBehaviour _handGrabInteractor;
         private IHandGrabber HandGrab { get; set; }
         private IInteractor Interactor { get; set; }
 
@@ -234,7 +234,7 @@ namespace Oculus.Interaction
 
         public void InjectInteractor(IInteractor interactor)
         {
-            _handGrabInteractor = interactor as UnityEngine.Object;
+            _handGrabInteractor = interactor as MonoBehaviour;
             Interactor = interactor;
         }
 

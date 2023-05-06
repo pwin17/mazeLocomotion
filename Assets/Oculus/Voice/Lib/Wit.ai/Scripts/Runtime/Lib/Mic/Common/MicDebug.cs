@@ -8,7 +8,6 @@
 
 using System;
 using System.IO;
-using Meta.WitAi;
 using Meta.WitAi.Interfaces;
 using UnityEngine;
 
@@ -79,7 +78,7 @@ namespace Meta.WitAi.Lib
             // Generate file name
             DateTime now = DateTime.Now;
             path = $"{path}/{fileName}{now.Year:0000}{now.Month:00}{now.Day:00}_{now.Hour:00}{now.Minute:00}{now.Second:00}.pcm";
-            VLog.D("MicDebug - Writing recording to file: " + path);
+            Debug.Log("MicDebug - Writing recording to file: " + path);
 
             // Create file stream
             _fileStream = File.Open(path, FileMode.Create);

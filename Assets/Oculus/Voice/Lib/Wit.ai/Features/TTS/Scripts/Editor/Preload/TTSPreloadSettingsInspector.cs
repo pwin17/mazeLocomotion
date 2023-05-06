@@ -31,7 +31,6 @@ namespace Meta.WitAi.TTS.Editor
         public const float ACTION_BTN_INDENT = 15f;
         public virtual Texture2D HeaderIcon => WitTexts.HeaderIcon;
         public virtual string HeaderUrl => WitTexts.GetAppURL(string.Empty, WitTexts.WitAppEndpointType.Settings);
-        public virtual string DocsUrl => WitTexts.Texts.WitDocsUrl;
 
         // Layout
         public override void OnInspectorGUI()
@@ -43,7 +42,7 @@ namespace Meta.WitAi.TTS.Editor
             }
 
             // Draw header
-            WitEditorUI.LayoutHeaderButton(HeaderIcon, HeaderUrl, DocsUrl);
+            WitEditorUI.LayoutHeaderButton(HeaderIcon, HeaderUrl);
             GUILayout.Space(WitStyles.HeaderPaddingBottom);
 
             // Layout actions

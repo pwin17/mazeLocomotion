@@ -28,7 +28,7 @@ namespace Oculus.Interaction
     public class HandDebugVisual : MonoBehaviour, IHandVisual
     {
         [SerializeField, Interface(typeof(IHand))]
-        private UnityEngine.Object _hand;
+        private MonoBehaviour _hand;
         public IHand Hand => _hand as IHand;
 
         public bool ForceOffVisibility { get; set; }

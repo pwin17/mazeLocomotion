@@ -69,7 +69,7 @@ namespace Oculus.Interaction.PoseDetection
     {
         [SerializeField, Interface(typeof(IHand))]
         [Tooltip("Data source used to retrieve finger bone rotations.")]
-        private UnityEngine.Object _hand;
+        private MonoBehaviour _hand;
         public IHand Hand { get; private set; }
 
         [Serializable]
@@ -279,7 +279,7 @@ namespace Oculus.Interaction.PoseDetection
 
         public void InjectHand(IHand hand)
         {
-            _hand = hand as UnityEngine.Object;
+            _hand = hand as MonoBehaviour;
             Hand = hand;
         }
 

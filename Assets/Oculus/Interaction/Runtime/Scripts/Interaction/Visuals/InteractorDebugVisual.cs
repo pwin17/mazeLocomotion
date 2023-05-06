@@ -27,7 +27,7 @@ namespace Oculus.Interaction
     public class InteractorDebugVisual : MonoBehaviour
     {
         [SerializeField, Interface(typeof(IInteractorView))]
-        private UnityEngine.Object _interactorView;
+        private MonoBehaviour _interactorView;
 
         [SerializeField]
         private Renderer _renderer;
@@ -166,7 +166,7 @@ namespace Oculus.Interaction
 
         public void InjectInteractorView(IInteractorView interactorView)
         {
-            _interactorView = interactorView as UnityEngine.Object;
+            _interactorView = interactorView as MonoBehaviour;
             InteractorView = interactorView;
         }
 

@@ -8,7 +8,6 @@
 
 using System;
 using System.Collections.Generic;
-using Meta.WitAi;
 using Meta.WitAi.Json;
 using UnityEngine;
 
@@ -144,7 +143,7 @@ namespace Meta.Conduit.Editor
             }
             catch (Exception e)
             {
-                VLog.E($"Failed to load Conduit statistics. {e}");
+                Debug.LogError($"Failed to load Conduit statistics. {e}");
             }
         }
     }

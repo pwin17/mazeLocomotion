@@ -18,29 +18,23 @@
  * limitations under the License.
  */
 
-using System;
+using UnityEngine;
 using UnityEditor;
 using UnityEditor.SceneManagement;
-using UnityEngine;
 
 internal static class OVRMovementTool
 {
-	private const string k_SetupCharacterForBodyTrackingMovementToolsMenuStr = "GameObject/Movement/Setup Character for Body Tracking/";
-	private const string oculusSkeletonFormat = "Format: Oculus Skeleton";
+	private const string k_SetupCharacterForBodyTracking = "Setup Character for Body Tracking";
+	const string k_SetupCharacterForBodyTrackingMovementToolsMenuStr = "GameObject/Movement/" + k_SetupCharacterForBodyTracking;
 
-	[MenuItem(k_SetupCharacterForBodyTrackingMovementToolsMenuStr + oculusSkeletonFormat, true)]
-	private static bool ValidateSetupCharacterForOculusSkeletonBodyTracking()
+	[MenuItem(k_SetupCharacterForBodyTrackingMovementToolsMenuStr, true)]
+	static bool ValidateSetupCharacterForBodyTracking()
 	{
 		return Selection.activeGameObject != null;
 	}
 
-	[MenuItem(k_SetupCharacterForBodyTrackingMovementToolsMenuStr + oculusSkeletonFormat)]
-	private static void SetupCharacterForOculusSkeletonBodyTracking()
-	{
-		SetUpCharacterForBodyTracking(OVRCustomSkeleton.RetargetingType.OculusSkeleton);
-	}
-
-	private static void SetUpCharacterForBodyTracking(OVRCustomSkeleton.RetargetingType retargetingType)
+	[MenuItem(k_SetupCharacterForBodyTrackingMovementToolsMenuStr)]
+	private static void SetupCharacterForBodyTracking()
 	{
 		Undo.IncrementCurrentGroup();
 		var gameObject = Selection.activeGameObject;
@@ -61,13 +55,10 @@ internal static class OVRMovementTool
 
 		Undo.RegisterFullObjectHierarchyUndo(skeleton, "Auto-map OVRCustomSkeleton bones");
 		skeleton.SetSkeletonType(OVRSkeleton.SkeletonType.Body);
-		skeleton.retargetingType = retargetingType;
-
-		skeleton.AutoMapBones(retargetingType);
+		skeleton.AutoMapBones(OVRCustomSkeleton.RetargetingType.OculusSkeleton);
 		EditorUtility.SetDirty(skeleton);
 		EditorSceneManager.MarkSceneDirty(skeleton.gameObject.scene);
 
-		Undo.SetCurrentGroupName($"Setup Character for {retargetingType} Body Tracking");
+		Undo.SetCurrentGroupName(k_SetupCharacterForBodyTracking);
 	}
-
 }

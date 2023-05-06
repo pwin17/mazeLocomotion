@@ -33,7 +33,7 @@ namespace Oculus.Interaction
         ISelector, IActiveState
     {
         [SerializeField, Interface(typeof(IHand))]
-        private UnityEngine.Object _hand;
+        private MonoBehaviour _hand;
         public IHand Hand { get; private set; }
 
         [SerializeField]
@@ -42,7 +42,7 @@ namespace Oculus.Interaction
         public bool Active => this.enabled && _isIndexFingerPinching && !_cancelled;
 
         [SerializeField, Interface(typeof(IActiveState))]
-        private UnityEngine.Object _indexReleaseSafeguard;
+        private MonoBehaviour _indexReleaseSafeguard;
         private IActiveState IndexReleaseSafeguard;
 
         private bool _isIndexFingerPinching;
@@ -165,7 +165,7 @@ namespace Oculus.Interaction
 
         public void InjectHand(IHand hand)
         {
-            _hand = hand as UnityEngine.Object;
+            _hand = hand as MonoBehaviour;
             Hand = hand;
         }
 
@@ -176,7 +176,7 @@ namespace Oculus.Interaction
 
         public void InjectIndexReleaseSafeguard(IActiveState indexReleaseSafeguard)
         {
-            _indexReleaseSafeguard = indexReleaseSafeguard as UnityEngine.Object;
+            _indexReleaseSafeguard = indexReleaseSafeguard as MonoBehaviour;
             IndexReleaseSafeguard = indexReleaseSafeguard;
         }
         #endregion

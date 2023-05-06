@@ -152,10 +152,7 @@ namespace Meta.WitAi.Requests
             // Return custom uri
             if (OnProvideCustomUri != null)
             {
-                foreach (Func<UriBuilder, Uri> del in OnProvideCustomUri.GetInvocationList())
-                {
-                    uriBuilder = new UriBuilder(del(uriBuilder));
-                }
+                return OnProvideCustomUri(uriBuilder);
             }
 
             // Return uri

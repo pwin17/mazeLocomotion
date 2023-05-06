@@ -25,16 +25,19 @@ namespace Oculus.Interaction
 {
     public class RayInteractable : PointerInteractable<RayInteractor, RayInteractable>
     {
+        [SerializeField, Interface(typeof(IPointableElement)), Optional]
+        private MonoBehaviour _pointableElement;
+
         [SerializeField, Interface(typeof(ISurface))]
-        private UnityEngine.Object _surface;
+        private MonoBehaviour _surface;
         public ISurface Surface { get; private set; }
 
         [SerializeField, Optional, Interface(typeof(ISurface))]
-        private UnityEngine.Object _selectSurface = null;
+        private MonoBehaviour _selectSurface = null;
         private ISurface SelectSurface;
 
         [SerializeField, Optional, Interface(typeof(IMovementProvider))]
-        private UnityEngine.Object _movementProvider;
+        private MonoBehaviour _movementProvider;
         private IMovementProvider MovementProvider { get; set; }
 
         [SerializeField, Optional]
@@ -60,6 +63,7 @@ namespace Oculus.Interaction
             Surface = _surface as ISurface;
             SelectSurface = _selectSurface as ISurface;
             MovementProvider = _movementProvider as IMovementProvider;
+            PointableElement = _pointableElement as IPointableElement;
         }
 
         protected override void Start()
@@ -74,6 +78,10 @@ namespace Oculus.Interaction
             {
                 SelectSurface = Surface;
                 _selectSurface = SelectSurface as MonoBehaviour;
+            }
+            if (_pointableElement != null)
+            {
+                this.AssertField(PointableElement, nameof(PointableElement));
             }
             this.EndStart(ref _started);
         }
@@ -107,19 +115,25 @@ namespace Oculus.Interaction
         public void InjectSurface(ISurface surface)
         {
             Surface = surface;
-            _surface = surface as UnityEngine.Object;
+            _surface = surface as MonoBehaviour;
         }
 
         public void InjectOptionalSelectSurface(ISurface surface)
         {
             SelectSurface = surface;
-            _selectSurface = surface as UnityEngine.Object;
+            _selectSurface = surface as MonoBehaviour;
         }
 
         public void InjectOptionalMovementProvider(IMovementProvider provider)
         {
-            _movementProvider = provider as UnityEngine.Object;
+            _movementProvider = provider as MonoBehaviour;
             MovementProvider = provider;
+        }
+
+        public void InjectOptionalPointableElement(IPointableElement pointableElement)
+        {
+            PointableElement = pointableElement;
+            _pointableElement = pointableElement as MonoBehaviour;
         }
 
         #endregion

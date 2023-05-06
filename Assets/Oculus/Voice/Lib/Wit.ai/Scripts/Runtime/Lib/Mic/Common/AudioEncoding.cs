@@ -39,12 +39,6 @@ namespace Meta.WitAi.Data
         /// </summary>
         public Endian endian = Endian.Little;
 
-        /// <summary>
-        /// The number of recording channels
-        /// </summary>
-        /// <returns></returns>
-        public int numChannels = 1;
-
         public override string ToString()
         {
             return $"audio/raw;bits={bits};rate={samplerate / 1000}k;encoding={encoding};endian={endian.ToString().ToLower()}";

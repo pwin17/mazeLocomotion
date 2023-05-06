@@ -6,7 +6,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-using System;
 using UnityEngine;
 using UnityEngine.UI;
 using Meta.WitAi.TTS.Utilities;
@@ -22,7 +21,6 @@ namespace Meta.WitAi.TTS.Samples
         [SerializeField] private Button _speakButton;
         [SerializeField] private Button _speakQueuedButton;
 
-        [SerializeField] private string _dateId = "[DATE]";
         [SerializeField] private string[] _queuedText;
 
         // States
@@ -40,22 +38,15 @@ namespace Meta.WitAi.TTS.Samples
         // Stop click
         private void StopClick() => _speaker.Stop();
         // Speak phrase click
-        private void SpeakClick() => _speaker.Speak(FormatText(_input.text));
+        private void SpeakClick() => _speaker.Speak(_input.text);
         // Speak queued phrase click
         private void SpeakQueuedClick()
         {
             foreach (var text in _queuedText)
             {
-                _speaker.SpeakQueued(FormatText(text));
+                _speaker.SpeakQueued(text);
             }
-            _speaker.SpeakQueued(FormatText(_input.text));
-        }
-        // Format text with current datetime
-        private string FormatText(string text)
-        {
-            DateTime now = DateTime.Now;
-            string dateString = $"{now.ToLongDateString()} at {now.ToShortTimeString()}";
-            return text.Replace(_dateId, dateString);
+            _speaker.SpeakQueued(_input.text);
         }
         // Remove delegates
         private void OnDisable()

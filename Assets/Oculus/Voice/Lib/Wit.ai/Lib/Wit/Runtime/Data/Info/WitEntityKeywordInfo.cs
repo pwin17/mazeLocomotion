@@ -8,6 +8,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Meta.WitAi.Data.Info
 {
@@ -27,8 +28,8 @@ namespace Meta.WitAi.Data.Info
         /// <summary>
         /// Synonyms for specified keyword
         /// </summary>
-        #if UNITY_2021_1_OR_NEWER
-        [UnityEngine.NonReorderable]
+        #if UNITY_2021_3_2 || UNITY_2021_3_3 || UNITY_2021_3_4 || UNITY_2021_3_5
+        [NonReorderable]
         #endif
         public List<string> synonyms;
 

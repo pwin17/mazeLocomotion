@@ -27,7 +27,7 @@ namespace Oculus.Interaction
     {
         [Tooltip("ActiveState will be true while this controller is connected.")]
         [SerializeField, Interface(typeof(IController))]
-        UnityEngine.Object _controller;
+        MonoBehaviour _controller;
 
         private IController Controller;
 
@@ -52,7 +52,7 @@ namespace Oculus.Interaction
 
         public void InjectController(IController controller)
         {
-            _controller = controller as UnityEngine.Object;
+            _controller = controller as MonoBehaviour;
             Controller = controller;
         }
 

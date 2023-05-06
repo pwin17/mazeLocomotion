@@ -76,55 +76,55 @@ namespace Meta.WitAi.Json
         /// <summary>
         /// Generate a default instance, deserialize and return async
         /// </summary>
-        public static void DeserializeObjectAsync<IN_TYPE>(string jsonString, Action<IN_TYPE, bool> onComplete, JsonConverter[] customConverters = null, bool suppressWarnings = false)
+        public static void DeserializeObjectAsync<IN_TYPE>(string jsonString, Action<IN_TYPE, bool> onComplete, JsonConverter[] customConverters = null)
         {
             IN_TYPE instance = (IN_TYPE)EnsureExists(typeof(IN_TYPE), null);
             ThreadUtility.PerformInBackground(
-                () => DeserializeIntoObject<IN_TYPE>(ref instance, jsonString, customConverters, suppressWarnings),
+                () => DeserializeIntoObject<IN_TYPE>(ref instance, jsonString, customConverters),
                 (success) => onComplete?.Invoke(instance, success));
         }
         /// <summary>
         /// Generate a default instance, deserialize and return async
         /// </summary>
-        public static void DeserializeObjectAsync<IN_TYPE>(WitResponseNode jsonToken, Action<IN_TYPE, bool> onComplete, JsonConverter[] customConverters = null, bool suppressWarnings = false)
+        public static void DeserializeObjectAsync<IN_TYPE>(WitResponseNode jsonToken, Action<IN_TYPE, bool> onComplete, JsonConverter[] customConverters = null)
         {
             IN_TYPE instance = (IN_TYPE)EnsureExists(typeof(IN_TYPE), null);
             ThreadUtility.PerformInBackground(
-                () => DeserializeIntoObject<IN_TYPE>(ref instance, jsonToken, customConverters, suppressWarnings),
+                () => DeserializeIntoObject<IN_TYPE>(ref instance, jsonToken, customConverters),
                 (success) => onComplete?.Invoke(instance, success));
         }
         /// <summary>
         /// Generate a default instance, deserialize and return
         /// </summary>
-        public static IN_TYPE DeserializeObject<IN_TYPE>(string jsonString, JsonConverter[] customConverters = null, bool suppressWarnings = false)
+        public static IN_TYPE DeserializeObject<IN_TYPE>(string jsonString, JsonConverter[] customConverters = null)
         {
             IN_TYPE instance = (IN_TYPE)EnsureExists(typeof(IN_TYPE), null);
-            DeserializeIntoObject<IN_TYPE>(ref instance, jsonString, customConverters, suppressWarnings);
+            DeserializeIntoObject<IN_TYPE>(ref instance, jsonString, customConverters);
             return instance;
         }
         /// <summary>
         /// Generate a default instance, deserialize and return
         /// </summary>
-        public static IN_TYPE DeserializeObject<IN_TYPE>(WitResponseNode jsonToken, JsonConverter[] customConverters = null, bool suppressWarnings = false)
+        public static IN_TYPE DeserializeObject<IN_TYPE>(WitResponseNode jsonToken, JsonConverter[] customConverters = null)
         {
             IN_TYPE instance = (IN_TYPE)EnsureExists(typeof(IN_TYPE), null);
-            DeserializeIntoObject<IN_TYPE>(ref instance, jsonToken, customConverters, suppressWarnings);
+            DeserializeIntoObject<IN_TYPE>(ref instance, jsonToken, customConverters);
             return instance;
         }
 
         /// <summary>
         /// Deserialize json string into an existing instance
         /// </summary>
-        public static bool DeserializeIntoObject<IN_TYPE>(ref IN_TYPE instance, string jsonString, JsonConverter[] customConverters = null, bool suppressWarnings = false)
+        public static bool DeserializeIntoObject<IN_TYPE>(ref IN_TYPE instance, string jsonString, JsonConverter[] customConverters = null)
         {
             // Parse json
             WitResponseNode jsonToken = DeserializeToken(jsonString);
-            return DeserializeIntoObject<IN_TYPE>(ref instance, jsonToken, customConverters, suppressWarnings);
+            return DeserializeIntoObject<IN_TYPE>(ref instance, jsonToken, customConverters);
         }
         /// <summary>
         /// Deserialize json string into an existing instance
         /// </summary>
-        public static bool DeserializeIntoObject<IN_TYPE>(ref IN_TYPE instance, WitResponseNode jsonToken, JsonConverter[] customConverters = null, bool suppressWarnings = false)
+        public static bool DeserializeIntoObject<IN_TYPE>(ref IN_TYPE instance, WitResponseNode jsonToken, JsonConverter[] customConverters = null)
         {
             // Could not parse
             if (jsonToken == null)
@@ -162,7 +162,7 @@ namespace Meta.WitAi.Json
             {
                 StringBuilder log = new StringBuilder();
                 instance = (IN_TYPE)DeserializeToken(iType, instance, jsonToken, log, customConverters);
-                if (log.Length > 0 && !suppressWarnings)
+                if (log.Length > 0)
                 {
                     VLog.D($"Deserialize Warnings\n{log}");
                 }
@@ -170,7 +170,7 @@ namespace Meta.WitAi.Json
             }
             catch (Exception e)
             {
-                VLog.E($"Deserialize Failed\nTo: {typeof(IN_TYPE)}\n{e}");
+                VLog.W($"Deserialize Failed\nTo: {typeof(IN_TYPE)}\n{e}");
                 return false;
             }
         }
@@ -499,10 +499,10 @@ namespace Meta.WitAi.Json
 
         #region Serialize
         // Serialize object into json
-        public static string SerializeObject<FROM_TYPE>(FROM_TYPE inObject, JsonConverter[] customConverters = null, bool suppressWarnings = false)
+        public static string SerializeObject<FROM_TYPE>(FROM_TYPE inObject, JsonConverter[] customConverters = null)
         {
             // Decode token
-            WitResponseNode jsonToken = SerializeToken<FROM_TYPE>(inObject, customConverters, suppressWarnings);
+            WitResponseNode jsonToken = SerializeToken<FROM_TYPE>(inObject, customConverters);
             if (jsonToken != null)
             {
                 try
@@ -511,7 +511,7 @@ namespace Meta.WitAi.Json
                 }
                 catch (Exception e)
                 {
-                    VLog.E($"Serialize Object Failed\n{e}");
+                    VLog.W($"Serialize Object Failed\n{e}");
                 }
             }
 
@@ -523,7 +523,7 @@ namespace Meta.WitAi.Json
         /// </summary>
         /// <param name="inObject">Serialize object</param>
         /// <returns></returns>
-        public static WitResponseNode SerializeToken<FROM_TYPE>(FROM_TYPE inObject, JsonConverter[] customConverters = null, bool suppressWarnings = false)
+        public static WitResponseNode SerializeToken<FROM_TYPE>(FROM_TYPE inObject, JsonConverter[] customConverters = null)
         {
             // Use default if no customs are added
             if (customConverters == null)
@@ -534,7 +534,7 @@ namespace Meta.WitAi.Json
             {
                 StringBuilder log = new StringBuilder();
                 WitResponseNode jsonToken = SerializeToken(typeof(FROM_TYPE), inObject, log, customConverters);
-                if (log.Length > 0 && !suppressWarnings)
+                if (log.Length > 0)
                 {
                     VLog.W($"Serialize Token Warnings\n{log}");
                 }
@@ -542,19 +542,13 @@ namespace Meta.WitAi.Json
             }
             catch (Exception e)
             {
-                VLog.E($"Serialize Token Failed\n{e}");
+                VLog.W($"Serialize Token Failed\n{e}");
             }
             return null;
         }
         // Convert data to node
         private static WitResponseNode SerializeToken(Type inType, object inObject, StringBuilder log, JsonConverter[] customConverters)
         {
-            // Use object type instead if possible
-            if (inObject != null && inType == typeof(object))
-            {
-                inType = inObject.GetType();
-            }
-
             // Iterate custom converters
             if (customConverters != null)
             {
@@ -619,14 +613,7 @@ namespace Meta.WitAi.Json
                     object newObj = oldDictionary[key];
                     if (newObj == null)
                     {
-                        if (valType == typeof(string))
-                        {
-                            newObj = string.Empty;
-                        }
-                        else
-                        {
-                            newObj = Activator.CreateInstance(valType);
-                        }
+                        newObj = Activator.CreateInstance(valType);
                     }
                     newDictionary.Add(key.ToString(), SerializeToken(valType, newObj, log, customConverters));
                 }

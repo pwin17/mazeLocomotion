@@ -26,7 +26,7 @@ namespace Oculus.Interaction.Input.Visuals
     public class OVRControllerVisual : MonoBehaviour
     {
         [SerializeField, Interface(typeof(IController))]
-        private UnityEngine.Object _controller;
+        private MonoBehaviour _controller;
 
         public IController Controller;
 
@@ -102,7 +102,7 @@ namespace Oculus.Interaction.Input.Visuals
 
         public void InjectController(IController controller)
         {
-            _controller = controller as UnityEngine.Object;
+            _controller = controller as MonoBehaviour;
             Controller = controller;
         }
 

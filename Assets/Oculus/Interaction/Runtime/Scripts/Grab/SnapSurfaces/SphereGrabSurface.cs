@@ -18,8 +18,10 @@
  * limitations under the License.
  */
 
-using System;
 using UnityEngine;
+using UnityEngine.Assertions;
+using System;
+using UnityEngine.Serialization;
 
 namespace Oculus.Interaction.Grab.GrabSurfaces
 {
@@ -39,177 +41,200 @@ namespace Oculus.Interaction.Grab.GrabSurfaces
             return mirror;
         }
 
-        public Vector3 centre = Vector3.zero;
+        public Vector3 centre;
     }
 
     /// <summary>
     /// Specifies an entire sphere around an object in which the grip point is valid.
+    ///
     /// One of the main advantages of spheres is that the rotation of the hand pose does
     /// not really matters, as it will always fit the surface correctly.
     /// </summary>
     [Serializable]
     public class SphereGrabSurface : MonoBehaviour, IGrabSurface
     {
+
         [SerializeField]
         protected SphereGrabSurfaceData _data = new SphereGrabSurfaceData();
 
+        /// <summary>
+        /// Getter for the data-only version of this surface. Used so it can be stored when created
+        /// at Play-Mode.
+        /// </summary>
+        public SphereGrabSurfaceData Data
+        {
+            get
+            {
+                return _data;
+            }
+            set
+            {
+                _data = value;
+            }
+        }
+
         [SerializeField]
-        [Tooltip("Transform used as a reference to measure the local data of the grab surface")]
         private Transform _relativeTo;
 
-        private Pose RelativePose => PoseUtils.DeltaScaled(_relativeTo, this.transform);
-
-        /// <summary>
-        /// The reference pose of the surface. It defines the radius of the sphere
-        /// as the point from the relative transform to the reference pose to ensure
-        /// that the sphere covers this pose.
-        /// </summary>
-        /// <param name="relativeTo">The reference transform to apply the surface to</param>
-        /// <returns>Pose in world space</returns>
-        public Pose GetReferencePose(Transform relativeTo)
-        {
-            return PoseUtils.GlobalPoseScaled(relativeTo, RelativePose);
-        }
+        [SerializeField]
+        [FormerlySerializedAs("_gripPoint")]
+        private Transform _referencePoint;
 
         /// <summary>
         /// The center of the sphere in world coordinates.
         /// </summary>
-        /// <param name="relativeTo">The reference transform to apply the surface to</param>
-        /// <returns>Position in world space</returns>
-        public Vector3 GetCentre(Transform relativeTo)
+        public Vector3 Centre
         {
-            return relativeTo.TransformPoint(_data.centre);
-        }
-        public void SetCentre(Vector3 point, Transform relativeTo)
-        {
-            _data.centre = relativeTo.InverseTransformPoint(point);
+            get
+            {
+                if (_relativeTo != null)
+                {
+                    return _relativeTo.TransformPoint(_data.centre);
+                }
+                else
+                {
+                    return _data.centre;
+                }
+            }
+            set
+            {
+                if (_relativeTo != null)
+                {
+                    _data.centre = _relativeTo.InverseTransformPoint(value);
+                }
+                else
+                {
+                    _data.centre = value;
+                }
+            }
         }
 
         /// <summary>
         /// The radius of the sphere, this is automatically calculated as the distance between
         /// the center and the original grip pose.
         /// </summary>
-        /// <param name="relativeTo">The reference transform to apply the surface to</param>
-        /// <returns>Distance in world space</returns>
-        public float GetRadius(Transform relativeTo)
+        public float Radius
         {
-            Vector3 centre = GetCentre(relativeTo);
-            Pose referencePose = GetReferencePose(relativeTo);
-            return Vector3.Distance(centre, referencePose.position);
+            get
+            {
+                if (_referencePoint == null)
+                {
+                    return 0f;
+                }
+                return Vector3.Distance(Centre, _referencePoint.position);
+            }
         }
 
         /// <summary>
         /// The direction of the sphere, measured from the center to the original grip position.
         /// </summary>
-        /// <param name="relativeTo">The reference transform to apply the surface to</param>
-        /// <returns>Direction in world space</returns>
-        public Vector3 GetDirection(Transform relativeTo)
+        public Vector3 Direction
         {
-            Vector3 centre = GetCentre(relativeTo);
-            Pose referencePose = GetReferencePose(relativeTo);
-            return (referencePose.position - centre).normalized;
+            get
+            {
+                return (_referencePoint.position - Centre).normalized;
+            }
+        }
+
+        /// <summary>
+        /// The rotation of the sphere from the recorded grip position.
+        /// </summary>
+        public Quaternion Rotation
+        {
+            get
+            {
+                return Quaternion.LookRotation(Direction, _referencePoint.forward);
+            }
         }
 
         #region editor events
-        protected virtual void Reset()
+        private void Reset()
         {
-            _relativeTo = this.GetComponentInParent<IRelativeToRef>()?.RelativeTo;
+            _referencePoint = this.transform;
+            _relativeTo = this.GetComponentInParent<Rigidbody>()?.transform;
         }
         #endregion
 
         protected virtual void Start()
         {
-            this.AssertField(_data, nameof(_data));
             this.AssertField(_relativeTo, nameof(_relativeTo));
+            this.AssertField(_referencePoint, nameof(_referencePoint));
+            this.AssertField(_data, nameof(_data));
         }
 
-        public Pose MirrorPose(in Pose pose, Transform relativeTo)
+        public Pose MirrorPose(in Pose pose)
         {
-            Vector3 normal = Quaternion.Inverse(relativeTo.rotation) * GetDirection(relativeTo);
+            Vector3 normal = Quaternion.Inverse(_relativeTo.rotation) * Direction;
             Vector3 tangent = Vector3.Cross(normal, Vector3.up);
             return pose.MirrorPoseRotation(normal, tangent);
         }
 
-        public bool CalculateBestPoseAtSurface(Ray targetRay, out Pose bestPose, Transform relativeTo)
+        public bool CalculateBestPoseAtSurface(Ray targetRay, in Pose recordedPose, out Pose bestPose)
         {
-            Vector3 centre = GetCentre(relativeTo);
-            Vector3 projection = Vector3.Project(centre - targetRay.origin, targetRay.direction);
+            Vector3 projection = Vector3.Project(Centre - targetRay.origin, targetRay.direction);
             Vector3 nearestCentre = targetRay.origin + projection;
-            float radius = GetRadius(relativeTo);
-            float distanceToSurface = Mathf.Max(Vector3.Distance(centre, nearestCentre) - radius);
-            if (distanceToSurface < radius)
+            float distanceToSurface = Mathf.Max(Vector3.Distance(Centre, nearestCentre) - Radius);
+            if (distanceToSurface < Radius)
             {
-                float adjustedDistance = Mathf.Sqrt(radius * radius - distanceToSurface * distanceToSurface);
+                float adjustedDistance = Mathf.Sqrt(Radius * Radius - distanceToSurface * distanceToSurface);
                 nearestCentre -= targetRay.direction * adjustedDistance;
             }
 
-            Pose recordedPose = GetReferencePose(relativeTo);
-            Vector3 surfacePoint = NearestPointInSurface(nearestCentre, relativeTo);
+
+            Vector3 surfacePoint = NearestPointInSurface(nearestCentre);
             Pose desiredPose = new Pose(surfacePoint, recordedPose.rotation);
-            bestPose = MinimalTranslationPoseAtSurface(desiredPose, relativeTo);
+            bestPose = MinimalTranslationPoseAtSurface(desiredPose, recordedPose);
             return true;
         }
 
-        public GrabPoseScore CalculateBestPoseAtSurface(in Pose targetPose, out Pose bestPose,
-            in PoseMeasureParameters scoringModifier, Transform relativeTo)
+        public GrabPoseScore CalculateBestPoseAtSurface(in Pose targetPose, in Pose reference, out Pose bestPose, in PoseMeasureParameters scoringModifier)
         {
-            return GrabPoseHelper.CalculateBestPoseAtSurface(targetPose, out bestPose,
-                scoringModifier, relativeTo,
-                MinimalTranslationPoseAtSurface,
-                MinimalRotationPoseAtSurface);
+            return GrabPoseHelper.CalculateBestPoseAtSurface(targetPose, reference, out bestPose,
+                scoringModifier, MinimalTranslationPoseAtSurface, MinimalRotationPoseAtSurface);
         }
 
         public IGrabSurface CreateMirroredSurface(GameObject gameObject)
         {
             SphereGrabSurface surface = gameObject.AddComponent<SphereGrabSurface>();
-            surface._data = _data.Mirror();
+            surface.Data = _data.Mirror();
             return surface;
         }
 
         public IGrabSurface CreateDuplicatedSurface(GameObject gameObject)
         {
             SphereGrabSurface surface = gameObject.AddComponent<SphereGrabSurface>();
-            surface._data = _data;
+            surface.Data = _data;
             return surface;
         }
 
-        protected Vector3 NearestPointInSurface(Vector3 targetPosition, Transform relativeTo)
+        protected Vector3 NearestPointInSurface(Vector3 targetPosition)
         {
-            Vector3 centre = GetCentre(relativeTo);
-            Vector3 direction = (targetPosition - centre).normalized;
-            float radius = GetRadius(relativeTo);
-            return centre + direction * radius;
+            Vector3 direction = (targetPosition - Centre).normalized;
+            return Centre + direction * Radius;
         }
 
-        protected Pose MinimalRotationPoseAtSurface(in Pose userPose, Transform relativeTo)
+        protected Pose MinimalRotationPoseAtSurface(in Pose userPose, in Pose referencePose)
         {
-            Vector3 centre = GetCentre(relativeTo);
-            Pose referencePose = GetReferencePose(relativeTo);
-            float radius = GetRadius(relativeTo);
             Quaternion rotCorrection = userPose.rotation * Quaternion.Inverse(referencePose.rotation);
-            Vector3 correctedDir = rotCorrection * GetDirection(relativeTo);
-            Vector3 surfacePoint = NearestPointInSurface(centre + correctedDir * radius, relativeTo);
-            Quaternion surfaceRotation = RotationAtPoint(surfacePoint, referencePose.rotation, userPose.rotation, relativeTo);
-
+            Vector3 correctedDir = rotCorrection * Direction;
+            Vector3 surfacePoint = NearestPointInSurface(Centre + correctedDir * Radius);
+            Quaternion surfaceRotation = RotationAtPoint(surfacePoint, referencePose.rotation, userPose.rotation);
             return new Pose(surfacePoint, surfaceRotation);
         }
 
-        protected Pose MinimalTranslationPoseAtSurface(in Pose userPose, Transform relativeTo)
+        protected Pose MinimalTranslationPoseAtSurface(in Pose userPose, in Pose referencePose)
         {
-            Pose referencePose = GetReferencePose(relativeTo);
             Vector3 desiredPos = userPose.position;
             Quaternion baseRot = referencePose.rotation;
-            Vector3 surfacePoint = NearestPointInSurface(desiredPos, relativeTo);
-            Quaternion surfaceRotation = RotationAtPoint(surfacePoint, baseRot, userPose.rotation, relativeTo);
+            Vector3 surfacePoint = NearestPointInSurface(desiredPos);
+            Quaternion surfaceRotation = RotationAtPoint(surfacePoint, baseRot, userPose.rotation);
             return new Pose(surfacePoint, surfaceRotation);
         }
 
-        protected Quaternion RotationAtPoint(Vector3 surfacePoint,
-            Quaternion baseRot, Quaternion desiredRotation,
-            Transform relativeTo)
+        protected Quaternion RotationAtPoint(Vector3 surfacePoint, Quaternion baseRot, Quaternion desiredRotation)
         {
-            Vector3 desiredDirection = (surfacePoint - GetCentre(relativeTo)).normalized;
-            Quaternion targetRotation = Quaternion.FromToRotation(GetDirection(relativeTo), desiredDirection) * baseRot;
+            Vector3 desiredDirection = (surfacePoint - Centre).normalized;
+            Quaternion targetRotation = Quaternion.FromToRotation(Direction, desiredDirection) * baseRot;
             Vector3 targetProjected = Vector3.ProjectOnPlane(targetRotation * Vector3.forward, desiredDirection).normalized;
             Vector3 desiredProjected = Vector3.ProjectOnPlane(desiredRotation * Vector3.forward, desiredDirection).normalized;
             Quaternion rotCorrection = Quaternion.FromToRotation(targetProjected, desiredProjected);
@@ -218,10 +243,12 @@ namespace Oculus.Interaction.Grab.GrabSurfaces
 
         #region Inject
 
-        public void InjectAllSphereSurface(SphereGrabSurfaceData data, Transform relativeTo)
+        public void InjectAllSphereSurface(SphereGrabSurfaceData data,
+            Transform relativeTo, Transform gripPoint)
         {
             InjectData(data);
             InjectRelativeTo(relativeTo);
+            InjectReferencePoint(gripPoint);
         }
 
         public void InjectData(SphereGrabSurfaceData data)
@@ -233,6 +260,12 @@ namespace Oculus.Interaction.Grab.GrabSurfaces
         {
             _relativeTo = relativeTo;
         }
+
+        public void InjectReferencePoint(Transform referencePoint)
+        {
+            _referencePoint = referencePoint;
+        }
+
         #endregion
     }
 }

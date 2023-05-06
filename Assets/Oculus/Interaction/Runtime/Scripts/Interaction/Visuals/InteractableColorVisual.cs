@@ -27,7 +27,7 @@ namespace Oculus.Interaction
     public class InteractableColorVisual : MonoBehaviour
     {
         [SerializeField, Interface(typeof(IInteractableView))]
-        private UnityEngine.Object _interactableView;
+        private MonoBehaviour _interactableView;
         private IInteractableView InteractableView { get; set; }
 
         [SerializeField]
@@ -171,7 +171,7 @@ namespace Oculus.Interaction
 
         public void InjectInteractableView(IInteractableView interactableview)
         {
-            _interactableView = interactableview as UnityEngine.Object;
+            _interactableView = interactableview as MonoBehaviour;
             InteractableView = interactableview;
         }
 

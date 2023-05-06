@@ -89,8 +89,9 @@ namespace Oculus.Interaction.HandGrab.Visuals
                 return;
             }
 
+            Transform relativeTo = handGrabPose.RelativeTo;
             _puppet.SetJointRotations(userPose.JointRotations);
-            SetRootPose(handGrabPose.RelativePose, handGrabPose.RelativeTo);
+            SetRootPose(handGrabPose.RelativeGrip, relativeTo);
         }
 
         public void SetPose(HandPose userPose, Pose rootPose)
@@ -106,16 +107,12 @@ namespace Oculus.Interaction.HandGrab.Visuals
         /// <param name="relativeTo">The object to use as anchor</param>
         public void SetRootPose(Pose rootPose, Transform relativeTo)
         {
-            Pose pose = rootPose;
-            if (relativeTo != null)
-            {
-                pose = PoseUtils.GlobalPoseScaled(relativeTo, rootPose);
-            }
-            _puppet.SetRootPose(pose);
+            rootPose.Postmultiply(relativeTo.GetPose());
+            _puppet.SetRootPose(rootPose);
         }
 
         #region Inject
-        public void InjectAllHandGhost(HandPuppet puppet)
+        public void InjectAllHandGhost(HandPuppet puppet, Transform gripPoint)
         {
             InjectHandPuppet(puppet);
         }
@@ -127,6 +124,7 @@ namespace Oculus.Interaction.HandGrab.Visuals
         {
             _handGrabPose = handGrabPose;
         }
+
         #endregion
     }
 }

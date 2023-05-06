@@ -8,7 +8,6 @@
 
 using System;
 using System.IO;
-using Meta.WitAi;
 
 namespace Meta.Conduit
 {
@@ -22,7 +21,7 @@ namespace Meta.Conduit
             }
             catch (Exception e)
             {
-                VLog.E($"FileIo Exists Check Failed\nPath: {fileName}\n{e}");
+                UnityEngine.Debug.LogError($"FileIo Exists Check Failed\nPath: {fileName}\n{e}");
                 return false;
             }
         }
@@ -35,7 +34,7 @@ namespace Meta.Conduit
             }
             catch (Exception e)
             {
-                VLog.E($"FileIo ReadAllText Failed\nPath: {fileName}\n{e}");
+                UnityEngine.Debug.LogError($"FileIo ReadAllText Failed\nPath: {fileName}\n{e}");
                 return string.Empty;
             }
         }
@@ -44,7 +43,7 @@ namespace Meta.Conduit
         {
             try
             {
-                var directory = Path.GetDirectoryName(path);
+                string directory = Path.GetDirectoryName(path);
                 if (!Directory.Exists(directory))
                 {
                     Directory.CreateDirectory(directory);
@@ -53,7 +52,7 @@ namespace Meta.Conduit
             }
             catch (Exception e)
             {
-                VLog.E($"FileIo WriteAllText Failed\nPath: {path}\nContents:\n{contents}\n{e}");
+                UnityEngine.Debug.LogError($"FileIo WriteAllText Failed\nPath: {path}\nContents:\n{contents}\n{e}");
             }
         }
 
@@ -65,7 +64,7 @@ namespace Meta.Conduit
             }
             catch (Exception e)
             {
-                VLog.E($"FileIo OpenText Failed\nPath: {fileName}\n{e}");
+                UnityEngine.Debug.LogError($"FileIo OpenText Failed\nPath: {fileName}\n{e}");
                 return null;
             }
         }

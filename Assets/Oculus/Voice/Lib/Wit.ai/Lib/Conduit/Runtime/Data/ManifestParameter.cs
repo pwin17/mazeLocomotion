@@ -28,10 +28,10 @@ namespace Meta.Conduit
         /// </summary>
         public string Name
         {
-            get => _name;
-            set => _name = ConduitUtilities.DelimitWithUnderscores(value);
+            get => name;
+            set => name = ConduitUtilities.DelimitWithUnderscores(value);
         }
-        private string _name;
+        private string name;
 
         /// <summary>
         /// This is the technical name of the parameter in the actual method in codebase.
@@ -46,6 +46,7 @@ namespace Meta.Conduit
         /// <summary>
         /// This is the data type of the parameter, exposed as an entity type.
         /// </summary>
+        [JsonIgnore]
         public string EntityType
         {
             get
@@ -97,7 +98,7 @@ namespace Meta.Conduit
         public override int GetHashCode()
         {
             var hash = 17;
-            hash = hash * 31 + _name.GetHashCode();
+            hash = hash * 31 + name.GetHashCode();
             hash = hash * 31 + InternalName.GetHashCode();
             hash = hash * 31 + QualifiedName.GetHashCode();
             hash = hash * 31 + TypeAssembly.GetHashCode();

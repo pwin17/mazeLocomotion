@@ -69,17 +69,16 @@ namespace Oculus.Interaction.HandGrab
             go.SetActive(false);
             HandGrabInteractable record = go.AddComponent<HandGrabInteractable>();
             record.InjectRigidbody(parent.GetComponentInParent<Rigidbody>());
-            record.InjectOptionalPointableElement(parent.GetComponentInParent<Grabbable>());
+            record.InjectPointableElement(parent.GetComponentInParent<Grabbable>());
             go.SetActive(true);
             return record;
         }
 
-        public static HandGrabPose CreateHandGrabPose(Transform parent, Transform relativeTo)
+        public static HandGrabPose CreateHandGrabPose(HandGrabInteractable interactable)
         {
             GameObject go = new GameObject("HandGrabPose");
-            go.transform.SetParent(parent, false);
+            go.transform.SetParent(interactable.transform, false);
             HandGrabPose record = go.AddComponent<HandGrabPose>();
-            record.InjectAllHandGrabPose(relativeTo);
             return record;
         }
 
@@ -89,8 +88,8 @@ namespace Oculus.Interaction.HandGrab
         /// but note that it can then moved manually in the editor.
         /// </summary>
         /// <param name="originalPoint">The point to mirror</param>
-        /// <param name="mirrorPoint">The target HandGrabPose to set as mirrored of the originalPoint</param>
-        public static void MirrorHandGrabPose(HandGrabPose originalPoint, HandGrabPose mirrorPoint, Transform relativeTo)
+        /// <param name="originalPoint">The target HandGrabPose to set as mirrored of the originalPoint</param>
+        public static void MirrorHandGrabPose(HandGrabPose originalPoint, HandGrabPose mirrorPoint)
         {
             HandPose handPose = originalPoint.HandPose;
 
@@ -101,7 +100,7 @@ namespace Oculus.Interaction.HandGrab
 
             if (originalPoint.SnapSurface != null)
             {
-                mirrorData.gripPose = originalPoint.SnapSurface.MirrorPose(mirrorData.gripPose, relativeTo);
+                mirrorData.gripPose = originalPoint.SnapSurface.MirrorPose(mirrorData.gripPose);
             }
             else
             {
@@ -110,11 +109,22 @@ namespace Oculus.Interaction.HandGrab
                 mirrorData.gripPose.position = mirrorData.gripPose.position - 2f * translation;
             }
 
-            LoadHandGrabPoseData(mirrorPoint, mirrorData, relativeTo);
+            LoadHandGrabPoseData(mirrorPoint, mirrorData, originalPoint.RelativeTo);
             if (originalPoint.SnapSurface != null)
             {
                 Grab.GrabSurfaces.IGrabSurface mirroredSurface = originalPoint.SnapSurface.CreateMirroredSurface(mirrorPoint.gameObject);
                 mirrorPoint.InjectOptionalSurface(mirroredSurface);
+            }
+        }
+
+        public static void CloneHandGrabPose(HandGrabPose originalPoint, HandGrabPose targetPoint)
+        {
+            HandGrabPoseData mirrorData = SaveHandGrabPoseData(originalPoint);
+            LoadHandGrabPoseData(targetPoint, mirrorData, originalPoint.RelativeTo);
+            if (originalPoint.SnapSurface != null)
+            {
+                Grab.GrabSurfaces.IGrabSurface mirroredSurface = originalPoint.SnapSurface.CreateDuplicatedSurface(targetPoint.gameObject);
+                targetPoint.InjectOptionalSurface(mirroredSurface);
             }
         }
 
@@ -123,8 +133,8 @@ namespace Oculus.Interaction.HandGrab
             HandGrabPoseData data = new HandGrabPoseData()
             {
                 handPose = new HandPose(handGrabPose.HandPose),
-                scale = handGrabPose.RelativeScale,
-                gripPose = handGrabPose.RelativePose
+                scale = handGrabPose.Scale,
+                gripPose = handGrabPose.RelativeTo.Delta(handGrabPose.transform)
             };
 
             return data;
@@ -132,8 +142,9 @@ namespace Oculus.Interaction.HandGrab
 
         private static void LoadHandGrabPoseData(HandGrabPose handGrabPose, HandGrabPoseData data, Transform relativeTo)
         {
+            handGrabPose.RelativeTo = relativeTo;
             handGrabPose.transform.localScale = Vector3.one * data.scale;
-            handGrabPose.transform.SetPose(PoseUtils.GlobalPoseScaled(relativeTo, data.gripPose));
+            handGrabPose.transform.SetPose(handGrabPose.RelativeTo.GlobalPose(data.gripPose));
             if (data.handPose != null)
             {
                 handGrabPose.InjectOptionalHandPose(new HandPose(data.handPose));
@@ -173,7 +184,7 @@ namespace Oculus.Interaction.HandGrab
             interactable.InjectSupportedGrabTypes(data.grabType);
             interactable.InjectPinchGrabRules(data.pinchGrabRules);
             interactable.InjectPalmGrabRules(data.palmGrabRules);
-            interactable.InjectOptionalScoreModifier(data.scoringModifier);
+            interactable.InjectScoreModifier(data.scoringModifier);
             interactable.HandAlignment = data.handAlignment;
 
             if (data.poses == null)
@@ -191,7 +202,7 @@ namespace Oculus.Interaction.HandGrab
         public static HandGrabPose LoadHandGrabPose(HandGrabInteractable interactable,
             HandGrabPoseData poseData)
         {
-            HandGrabPose point = CreateHandGrabPose(interactable.transform, interactable.RelativeTo);
+            HandGrabPose point = CreateHandGrabPose(interactable);
             LoadHandGrabPoseData(point, poseData, interactable.RelativeTo);
             interactable.HandGrabPoses.Add(point);
             return point;

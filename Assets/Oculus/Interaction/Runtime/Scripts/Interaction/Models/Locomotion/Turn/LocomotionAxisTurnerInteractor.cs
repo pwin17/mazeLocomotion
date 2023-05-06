@@ -32,7 +32,7 @@ namespace Oculus.Interaction.Locomotion
     {
         [SerializeField, Interface(typeof(IAxis2D))]
         [Tooltip("Input 2D Axis from which the Horizontal axis will be extracted")]
-        private UnityEngine.Object _axis2D;
+        private MonoBehaviour _axis2D;
         /// <summary>
         /// Input 2D Axis from which the Horizontal axis will be extracted
         /// </summary>
@@ -118,7 +118,7 @@ namespace Oculus.Interaction.Locomotion
 
         public void InjectAxis2D(IAxis2D axis2D)
         {
-            _axis2D = axis2D as UnityEngine.Object;
+            _axis2D = axis2D as MonoBehaviour;
             Axis2D = axis2D;
         }
 

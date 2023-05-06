@@ -29,7 +29,7 @@ namespace Oculus.Interaction
     {
         [Tooltip("The IActiveState that the NOT operation will be applied to.")]
         [SerializeField, Interface(typeof(IActiveState))]
-        private UnityEngine.Object _activeState;
+        private MonoBehaviour _activeState;
 
         private IActiveState ActiveState;
 
@@ -54,7 +54,7 @@ namespace Oculus.Interaction
 
         public void InjectActiveState(IActiveState activeState)
         {
-            _activeState = activeState as UnityEngine.Object;
+            _activeState = activeState as MonoBehaviour;
             ActiveState = activeState;
         }
         #endregion

@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) Meta Platforms, Inc. and affiliates.
  * All rights reserved.
  *
@@ -30,7 +30,7 @@ namespace Oculus.Interaction.DistanceReticles
     public class ReticleGhostDrawer : InteractorReticle<ReticleDataGhost>
     {
         [SerializeField, Interface(typeof(IHandGrabber), typeof(IHandGrabState), typeof(IInteractorView))]
-        private UnityEngine.Object _handGrabber;
+        private MonoBehaviour _handGrabber;
         private IHandGrabber HandGrabber { get; set; }
         private IHandGrabState HandGrabSource { get; set; }
 
@@ -40,7 +40,7 @@ namespace Oculus.Interaction.DistanceReticles
 
         [SerializeField, Interface(typeof(IHandVisual))]
         [FormerlySerializedAs("_visualHand")]
-        private UnityEngine.Object _handVisual;
+        private MonoBehaviour _handVisual;
 
         private IHandVisual HandVisual;
 
@@ -176,7 +176,7 @@ namespace Oculus.Interaction.DistanceReticles
 
         public void InjectHandGrabber(IHandGrabber handGrabber)
         {
-            _handGrabber = handGrabber as UnityEngine.Object;
+            _handGrabber = handGrabber as MonoBehaviour;
             HandGrabber = handGrabber;
             Interactor = handGrabber as IInteractorView;
             HandGrabSource = handGrabber as IHandGrabState;
@@ -189,7 +189,7 @@ namespace Oculus.Interaction.DistanceReticles
 
         public void InjectVisualHand(IHandVisual visualHand)
         {
-            _handVisual = visualHand as UnityEngine.Object;
+            _handVisual = visualHand as MonoBehaviour;
             HandVisual = visualHand;
         }
         #endregion

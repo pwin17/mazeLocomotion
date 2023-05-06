@@ -131,11 +131,5 @@ namespace Oculus.Voice.Bindings.Android
             get => _baseVoiceService.VoiceEvents;
             set => _baseVoiceService.VoiceEvents = value;
         }
-
-        public TelemetryEvents TelemetryEvents
-        {
-            get => _baseVoiceService.TelemetryEvents;
-            set => _baseVoiceService.TelemetryEvents = value;
-        }
     }
 }

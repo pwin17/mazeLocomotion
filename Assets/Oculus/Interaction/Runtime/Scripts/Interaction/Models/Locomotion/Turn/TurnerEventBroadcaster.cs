@@ -41,12 +41,12 @@ namespace Oculus.Interaction.Locomotion
 
         [SerializeField, Interface(typeof(IInteractor))]
         [Tooltip("The interactor defines when the Locomotion events are sent based on its Select state")]
-        private UnityEngine.Object _interactor;
+        private MonoBehaviour _interactor;
         private IInteractor Interactor { get; set; }
 
         [SerializeField, Interface(typeof(IAxis1D))]
         [Tooltip("Axis from -1 to 1 indicating the turning direction and velocity")]
-        private UnityEngine.Object _axis;
+        private MonoBehaviour _axis;
         private IAxis1D Axis { get; set; }
 
         [SerializeField]
@@ -243,13 +243,13 @@ namespace Oculus.Interaction.Locomotion
 
         public void InjectInteractor(IInteractor interactor)
         {
-            _interactor = interactor as UnityEngine.Object;
+            _interactor = interactor as MonoBehaviour;
             Interactor = interactor;
         }
 
         public void InjectAxis(IAxis1D axis)
         {
-            _axis = axis as UnityEngine.Object;
+            _axis = axis as MonoBehaviour;
             Axis = axis;
         }
         #endregion

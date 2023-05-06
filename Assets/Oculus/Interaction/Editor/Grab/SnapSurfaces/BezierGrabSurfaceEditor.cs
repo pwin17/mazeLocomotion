@@ -23,16 +23,13 @@ namespace Oculus.Interaction.Grab.GrabSurfaces.Editor
     {
         private BezierGrabSurface _surface;
         private SerializedProperty _relativeToProperty;
-        private Transform _relativeTo;
 
-        private bool IsSelectedIndexValid => _selectedIndex >= 0
-            && _selectedIndex < _surface.ControlPoints.Count;
+        private bool IsSelectedIndexValid => _selectedIndex >= 0 && _selectedIndex < _surface.ControlPoints.Count;
 
         private int _selectedIndex = -1;
         private const float PICK_SIZE = 0.1f;
         private const float AXIS_SIZE = 0.5f;
         private const int CURVE_STEPS = 50;
-        private const float SEPARATION = 0.1f;
 
         private void OnEnable()
         {
@@ -44,19 +41,13 @@ namespace Oculus.Interaction.Grab.GrabSurfaces.Editor
         {
             base.OnInspectorGUI();
 
-            _relativeTo = _relativeToProperty.objectReferenceValue as Transform;
-
-            if (_relativeTo == null)
-            {
-                return;
-            }
             if (GUILayout.Button("Add ControlPoint At Start"))
             {
-                AddControlPoint(true, _relativeTo);
+                AddControlPoint(true);
             }
             if (GUILayout.Button("Add ControlPoint At End"))
             {
-                AddControlPoint(false, _relativeTo);
+                AddControlPoint(false);
             }
 
             if (!IsSelectedIndexValid)
@@ -69,49 +60,38 @@ namespace Oculus.Interaction.Grab.GrabSurfaces.Editor
                 GUILayout.Label($"Selected Point: {_selectedIndex}");
                 if (GUILayout.Button("Align Selected Tangent"))
                 {
-                    AlignTangent(_selectedIndex, _relativeTo);
+                    AlignTangent(_selectedIndex);
                 }
                 if (GUILayout.Button("Smooth Selected Tangent"))
                 {
-                    SmoothTangent(_selectedIndex, _relativeTo);
+                    SmoothTangent(_selectedIndex);
                 }
             }
 
             serializedObject.ApplyModifiedProperties();
         }
 
+
         public void OnSceneGUI()
         {
-            if (_relativeTo == null)
-            {
-                return;
-            }
             Handles.color = EditorConstants.PRIMARY_COLOR;
 
-            DrawEndsCaps(_surface.ControlPoints, _relativeTo);
+            Transform relative = _relativeToProperty.objectReferenceValue as Transform ?? _surface.transform;
+            Pose relativePose = relative.GetPose();
+            DrawEndsCaps(_surface.ControlPoints, relativePose);
             if (Event.current.type == EventType.Repaint)
             {
-                DrawCurve(_surface.ControlPoints, _relativeTo);
+                DrawCurve(_surface.ControlPoints, relativePose);
             }
         }
 
-        private void AddControlPoint(bool addFirst, Transform relativeTo)
+        private void AddControlPoint(bool addFirst)
         {
-            BezierControlPoint controlPoint = new BezierControlPoint();
-            if (_surface.ControlPoints.Count == 0)
-            {
-                Pose pose = _surface.transform.GetPose();
-                controlPoint.SetPose(pose, relativeTo);
-                _surface.ControlPoints.Add(controlPoint);
-                _selectedIndex = 0;
-                return;
-            }
-            else if (_surface.ControlPoints.Count == 1)
+            BezierControlPoint controlPoint = BezierControlPoint.DEFAULT;
+            if (_surface.ControlPoints.Count == 1)
             {
                 controlPoint = _surface.ControlPoints[0];
-                Pose pose = controlPoint.GetPose(relativeTo);
-                pose.position += relativeTo.forward * SEPARATION;
-                controlPoint.SetPose(pose, relativeTo);
+                controlPoint.pose.position += Vector3.forward;
             }
             else if (_surface.ControlPoints.Count > 1)
             {
@@ -128,82 +108,75 @@ namespace Oculus.Interaction.Grab.GrabSurfaces.Editor
                     secondControlPoint = _surface.ControlPoints[_surface.ControlPoints.Count - 1];
                 }
 
-                Pose firstPose = firstControlPoint.GetPose(relativeTo);
-                Pose secondPose = secondControlPoint.GetPose(relativeTo);
-                Pose controlPointPose;
-                controlPointPose.position = 2 * secondPose.position - firstPose.position;
-                controlPointPose.rotation = secondPose.rotation;
-                controlPoint.SetPose(controlPointPose, relativeTo);
+                controlPoint.pose.position = 2 * secondControlPoint.pose.position - firstControlPoint.pose.position;
+                controlPoint.pose.rotation = secondControlPoint.pose.rotation;
             }
 
             if (addFirst)
             {
                 _surface.ControlPoints.Insert(0, controlPoint);
                 _selectedIndex = 0;
-                AlignTangent(0, relativeTo);
             }
             else
             {
                 _surface.ControlPoints.Add(controlPoint);
                 _selectedIndex = _surface.ControlPoints.Count - 1;
-                AlignTangent(_selectedIndex - 1, relativeTo);
             }
+            AlignTangent(_selectedIndex);
         }
 
-        private void AlignTangent(int index, Transform relativeTo)
+        private void AlignTangent(int index)
         {
             BezierControlPoint controlPoint = _surface.ControlPoints[index];
             BezierControlPoint nextControlPoint = _surface.ControlPoints[(index + 1) % _surface.ControlPoints.Count];
 
-            Vector3 tangent = (nextControlPoint.GetPose(relativeTo).position + controlPoint.GetPose(relativeTo).position) * 0.5f;
-            controlPoint.SetTangent(tangent, relativeTo);
+            controlPoint.tangentPoint = (nextControlPoint.pose.position - controlPoint.pose.position) * 0.5f;
             _surface.ControlPoints[index] = controlPoint;
         }
 
 
-        private void SmoothTangent(int index, Transform relativeTo)
+        private void SmoothTangent(int index)
         {
             BezierControlPoint controlPoint = _surface.ControlPoints[index];
             BezierControlPoint prevControlPoint = _surface.ControlPoints[(index + _surface.ControlPoints.Count - 1) % _surface.ControlPoints.Count];
 
-            Vector3 tangent = prevControlPoint.GetTangent(relativeTo);
-            tangent = (controlPoint.GetPose(relativeTo).position - tangent) * 0.5f;
-            controlPoint.SetTangent(tangent, relativeTo);
+            Vector3 prevTangent = prevControlPoint.pose.position + prevControlPoint.tangentPoint;
+            controlPoint.tangentPoint = (controlPoint.pose.position - prevTangent) * 0.5f;
             _surface.ControlPoints[index] = controlPoint;
         }
 
-        private void DrawEndsCaps(List<BezierControlPoint> controlPoints, Transform relativeTo)
+        private void DrawEndsCaps(List<BezierControlPoint> controlPoints, in Pose relativePose)
         {
             Handles.color = EditorConstants.PRIMARY_COLOR;
             for (int i = 0; i < controlPoints.Count; i++)
             {
-                DrawControlPoint(i, relativeTo);
+                DrawControlPoint(i, relativePose);
             }
 
             Handles.color = EditorConstants.PRIMARY_COLOR_DISABLED;
             if (IsSelectedIndexValid)
             {
-                DrawControlPointHandles(_selectedIndex, relativeTo);
-                DrawTangentLine(_selectedIndex, relativeTo);
+                DrawControlPointHandles(_selectedIndex, relativePose);
+                DrawTangentLine(_selectedIndex, relativePose);
             }
         }
 
-        private void DrawCurve(List<BezierControlPoint> controlPoints, Transform relativeTo)
+        private void DrawCurve(List<BezierControlPoint> controlPoints, in Pose relativePose)
         {
             Handles.color = EditorConstants.PRIMARY_COLOR;
             for (int i = 0; i < controlPoints.Count && controlPoints.Count > 1; i++)
             {
                 BezierControlPoint fromControlPoint = _surface.ControlPoints[i];
-                Pose from = fromControlPoint.GetPose(relativeTo);
+                Pose from = fromControlPoint.WorldSpacePose(relativePose);
 
                 BezierControlPoint toControlPoint = _surface.ControlPoints[(i + 1) % controlPoints.Count];
-                if (toControlPoint.Disconnected)
+                if (toControlPoint.disconnected)
                 {
                     continue;
                 }
 
-                Pose to = toControlPoint.GetPose(relativeTo);
-                Vector3 tangent = fromControlPoint.GetTangent(relativeTo);
+                Pose to = toControlPoint.WorldSpacePose(relativePose);
+                Vector3 tangent = from.position + relativePose.rotation * fromControlPoint.tangentPoint;
                 DrawBezier(from.position, tangent, to.position, CURVE_STEPS);
             }
         }
@@ -227,12 +200,12 @@ namespace Oculus.Interaction.Grab.GrabSurfaces.Editor
             }
         }
 
-        private void DrawTangentLine(int index, Transform relativeTo)
+        private void DrawTangentLine(int index, in Pose relativePose)
         {
             BezierControlPoint controlPoint = _surface.ControlPoints[index];
-            Pose pose = controlPoint.GetPose(relativeTo);
+            Pose pose = controlPoint.WorldSpacePose(relativePose);
             Vector3 center = pose.position;
-            Vector3 tangent = controlPoint.GetTangent(relativeTo);
+            Vector3 tangent = pose.position + relativePose.rotation * controlPoint.tangentPoint;
 
 #if UNITY_2020_2_OR_NEWER
             Handles.DrawLine(center, tangent, EditorConstants.LINE_THICKNESS);
@@ -241,10 +214,10 @@ namespace Oculus.Interaction.Grab.GrabSurfaces.Editor
 #endif
         }
 
-        private void DrawControlPoint(int index, Transform relativeTo)
+        private void DrawControlPoint(int index, in Pose relativePose)
         {
             BezierControlPoint controlPoint = _surface.ControlPoints[index];
-            Pose pose = controlPoint.GetPose(relativeTo);
+            Pose pose = controlPoint.WorldSpacePose(relativePose);
             float handleSize = HandleUtility.GetHandleSize(pose.position);
 
             Handles.color = EditorConstants.PRIMARY_COLOR;
@@ -261,10 +234,10 @@ namespace Oculus.Interaction.Grab.GrabSurfaces.Editor
             Handles.DrawLine(pose.position, pose.position + pose.forward * handleSize * AXIS_SIZE);
         }
 
-        private void DrawControlPointHandles(int index, Transform relativeTo)
+        private void DrawControlPointHandles(int index, in Pose relativePose)
         {
             BezierControlPoint controlPoint = _surface.ControlPoints[index];
-            Pose pose = controlPoint.GetPose(relativeTo);
+            Pose pose = controlPoint.WorldSpacePose(relativePose);
             if (Tools.current == Tool.Move)
             {
                 EditorGUI.BeginChangeCheck();
@@ -273,39 +246,31 @@ namespace Oculus.Interaction.Grab.GrabSurfaces.Editor
                 if (EditorGUI.EndChangeCheck())
                 {
                     Undo.RecordObject(_surface, "Change ControlPoint Position");
-                    controlPoint.SetPose(pose, relativeTo);
+                    controlPoint.pose.position = Quaternion.Inverse(relativePose.rotation) * (pose.position - relativePose.position);
                     _surface.ControlPoints[index] = controlPoint;
                 }
             }
             else if (Tools.current == Tool.Rotate)
             {
-                Quaternion originalRotation = pose.rotation;
-                if (Tools.pivotRotation == PivotRotation.Global)
-                {
-                    Quaternion offset = Handles.RotationHandle(Quaternion.identity, pose.position);
-                    pose.rotation = offset * pose.rotation;
-                }
-                else
-                {
-                    pose.rotation = Handles.RotationHandle(pose.rotation, pose.position);
-                }
+                EditorGUI.BeginChangeCheck();
+                pose.rotation = Handles.RotationHandle(pose.rotation, pose.position);
                 pose.rotation.Normalize();
-                if (originalRotation != pose.rotation)
+                if (EditorGUI.EndChangeCheck())
                 {
                     Undo.RecordObject(_surface, "Change ControlPoint Rotation");
-                    controlPoint.SetPose(pose, relativeTo);
+                    controlPoint.pose.rotation = (Quaternion.Inverse(relativePose.rotation) * pose.rotation);
                     _surface.ControlPoints[index] = controlPoint;
                 }
             }
 
-            Vector3 tangent = controlPoint.GetTangent(relativeTo);
-            Quaternion tangentRotation = Tools.pivotRotation == PivotRotation.Global ? Quaternion.identity : pose.rotation;
+            Vector3 tangent = pose.position + relativePose.rotation * controlPoint.tangentPoint;
+            Quaternion tangentRotation = Tools.pivotRotation == PivotRotation.Global ? Quaternion.identity : relativePose.rotation;
             EditorGUI.BeginChangeCheck();
             tangent = Handles.PositionHandle(tangent, tangentRotation);
             if (EditorGUI.EndChangeCheck())
             {
                 Undo.RecordObject(_surface, "Change ControlPoint Tangent");
-                controlPoint.SetTangent(tangent, relativeTo);
+                controlPoint.tangentPoint = Quaternion.Inverse(relativePose.rotation) * (tangent - pose.position);
                 _surface.ControlPoints[index] = controlPoint;
             }
         }

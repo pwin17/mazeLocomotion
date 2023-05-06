@@ -86,20 +86,11 @@ internal static class OVRPermissionsRequester
         };
     }
 
-#if OVRPLUGIN_TESTING
-	internal delegate bool delegatefakeIsPermissionGranted(Permission permission);
-	internal static delegatefakeIsPermissionGranted fakeIsPermissionGranted;
-
-	public static bool IsPermissionGranted(Permission permission)
-	{
-		return fakeIsPermissionGranted != null ? fakeIsPermissionGranted(permission) : true;
-	}
-#else
-	/// <summary>
-	/// Returns whether the <see cref="permission"/> has been granted.
-	/// </summary>
-	/// <param name="permission"><see cref="Permission"/> to be checked.</param>
-	public static bool IsPermissionGranted(Permission permission)
+    /// <summary>
+    /// Returns whether the <see cref="permission"/> has been granted.
+    /// </summary>
+    /// <param name="permission"><see cref="Permission"/> to be checked.</param>
+    public static bool IsPermissionGranted(Permission permission)
     {
 #if UNITY_ANDROID && !UNITY_EDITOR
         return UnityEngine.Android.Permission.HasUserAuthorizedPermission(GetPermissionId(permission));
@@ -107,13 +98,12 @@ internal static class OVRPermissionsRequester
         return true;
 #endif
     }
-#endif
 
-	/// <summary>
-	/// Requests the listed <see cref="permissions"/>.
-	/// </summary>
-	/// <param name="permissions">Set of <see cref="Permission"/> to be requested.</param>
-	public static void Request(IEnumerable<Permission> permissions)
+    /// <summary>
+    /// Requests the listed <see cref="permissions"/>.
+    /// </summary>
+    /// <param name="permissions">Set of <see cref="Permission"/> to be requested.</param>
+    public static void Request(IEnumerable<Permission> permissions)
     {
 #if UNITY_ANDROID && !UNITY_EDITOR
         var permissionIdsToRequest = new List<string>();
@@ -166,4 +156,3 @@ internal static class OVRPermissionsRequester
         return permissionCallbacks;
     }
 }
-

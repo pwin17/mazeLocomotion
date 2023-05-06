@@ -78,7 +78,7 @@ namespace Meta.WitAi.TTS.Editor
                     if (foldout)
                     {
                         EditorGUI.indentLevel++;
-                        DrawClipGUI(clip);
+                        OnClipGUI(clip);
                         EditorGUI.indentLevel--;
                     }
                 }
@@ -86,32 +86,18 @@ namespace Meta.WitAi.TTS.Editor
             }
         }
         // Clip data
-        public static void DrawClipGUI(TTSClipData clip)
+        private void OnClipGUI(TTSClipData clip)
         {
             // Generation Settings
             WitEditorUI.LayoutKeyLabel("Text", clip.textToSpeak);
-            EditorGUILayout.TextField("Clip ID", clip.clipID);
-            EditorGUILayout.ObjectField("Clip", clip.clip, typeof(AudioClip), true);
-
-            // Loaded
-            TTSClipLoadState loadState = clip.loadState;
-            if (loadState != TTSClipLoadState.Preparing)
-            {
-                WitEditorUI.LayoutKeyLabel("Load State", loadState.ToString());
-            }
-            // Loading with progress
-            else
-            {
-                EditorGUILayout.BeginHorizontal();
-                int loadProgress = Mathf.FloorToInt(clip.loadProgress * 100f);
-                WitEditorUI.LayoutKeyLabel("Load State", $"{loadState} ({loadProgress}%)");
-                GUILayout.HorizontalSlider(loadProgress, 0, 100);
-                EditorGUILayout.EndHorizontal();
-            }
-
-            // Additional Settings
             WitEditorUI.LayoutKeyObjectLabels("Voice Settings", clip.voiceSettings);
             WitEditorUI.LayoutKeyObjectLabels("Cache Settings", clip.diskCacheSettings);
+            // Clip Settings
+            EditorGUILayout.TextField("Clip ID", clip.clipID);
+            EditorGUILayout.ObjectField("Clip", clip.clip, typeof(AudioClip), true);
+            // Load Settings
+            WitEditorUI.LayoutKeyLabel("Load State", clip.loadState.ToString());
+            WitEditorUI.LayoutKeyLabel("Load Progress", (clip.loadProgress * 100f).ToString() + "%");
         }
     }
 }

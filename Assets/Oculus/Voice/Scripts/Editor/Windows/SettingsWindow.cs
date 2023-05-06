@@ -29,7 +29,6 @@ namespace Oculus.Voice.Windows
     {
         protected override GUIContent Title => VoiceSDKStyles.SettingsTitle;
         protected override Texture2D HeaderIcon => VoiceSDKStyles.MainHeader;
-        protected override string DocsUrl => VoiceSDKStyles.Texts.VoiceDocsUrl;
 
         protected override void OnEnable()
         {

@@ -30,7 +30,7 @@ namespace Oculus.Interaction.Input
     public class HandRef : MonoBehaviour, IHand, IActiveState
     {
         [SerializeField, Interface(typeof(IHand))]
-        private UnityEngine.Object _hand;
+        private MonoBehaviour _hand;
 
         public IHand Hand { get; private set; }
 
@@ -136,7 +136,7 @@ namespace Oculus.Interaction.Input
 
         public void InjectHand(IHand hand)
         {
-            _hand = hand as UnityEngine.Object;
+            _hand = hand as MonoBehaviour;
             Hand = hand;
         }
         #endregion

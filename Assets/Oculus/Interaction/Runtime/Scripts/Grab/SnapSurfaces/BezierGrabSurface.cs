@@ -13,7 +13,7 @@ permissions and limitations under the License.
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Serialization;
+using UnityEngine.Assertions;
 
 namespace Oculus.Interaction.Grab.GrabSurfaces
 {
@@ -32,30 +32,31 @@ namespace Oculus.Interaction.Grab.GrabSurfaces
         [SerializeField]
         private List<BezierControlPoint> _controlPoints = new List<BezierControlPoint>();
 
-        [SerializeField]
-        [Tooltip("Transform used as a reference to measure the local data of the grab surface")]
-        private Transform _relativeTo;
-
         public List<BezierControlPoint> ControlPoints => _controlPoints;
 
+        [SerializeField]
+        private Transform _relativeTo;
+
         private const float MAX_PLANE_DOT = 0.95f;
+        private const float MAX_RAY_DISTANCE = 2f;
 
         #region editor events
-        protected virtual void Reset()
+        private void Reset()
         {
-            _relativeTo = this.GetComponentInParent<IRelativeToRef>()?.RelativeTo;
+            _relativeTo = this.GetComponentInParent<Rigidbody>()?.transform;
         }
         #endregion
 
         protected virtual void Start()
         {
-            this.AssertCollectionField(ControlPoints, nameof(ControlPoints));
             this.AssertField(_relativeTo, nameof(_relativeTo));
+            this.AssertCollectionField(ControlPoints, nameof(ControlPoints));
         }
 
-        public GrabPoseScore CalculateBestPoseAtSurface(in Pose targetPose, out Pose bestPose,
-            in PoseMeasureParameters scoringModifier, Transform relativeTo)
+        public GrabPoseScore CalculateBestPoseAtSurface(in Pose targetPose, in Pose reference, out Pose bestPose,
+            in PoseMeasureParameters scoringModifier)
         {
+            Pose relativePose = _relativeTo.GetPose();
             Pose testPose = Pose.identity;
             Pose smallestRotationPose = Pose.identity;
             bestPose = targetPose;
@@ -65,31 +66,31 @@ namespace Oculus.Interaction.Grab.GrabSurfaces
                 BezierControlPoint currentControlPoint = _controlPoints[i];
                 BezierControlPoint nextControlPoint = _controlPoints[(i + 1) % _controlPoints.Count];
 
-                if (!currentControlPoint.Disconnected
-                    && nextControlPoint.Disconnected)
+                if (!currentControlPoint.disconnected
+                    && nextControlPoint.disconnected)
                 {
                     continue;
                 }
 
                 GrabPoseScore score;
-                if ((currentControlPoint.Disconnected && nextControlPoint.Disconnected)
+                if ((currentControlPoint.disconnected && nextControlPoint.disconnected)
                     || _controlPoints.Count == 1)
                 {
-                    Pose worldPose = currentControlPoint.GetPose(relativeTo);
+                    Pose worldPose = currentControlPoint.WorldSpacePose(relativePose);
                     testPose.CopyFrom(worldPose);
                     score = new GrabPoseScore(targetPose, testPose, scoringModifier.PositionRotationWeight);
                 }
                 else
                 {
-                    Pose start = currentControlPoint.GetPose(relativeTo);
-                    Pose end = nextControlPoint.GetPose(relativeTo);
-                    Vector3 tangent = currentControlPoint.GetTangent(relativeTo);
+                    Pose start = currentControlPoint.WorldSpacePose(relativePose);
+                    Pose end = nextControlPoint.WorldSpacePose(relativePose);
+                    Vector3 tangent = start.position + relativePose.rotation * currentControlPoint.tangentPoint;
 
                     NearestPointInTriangle(targetPose.position, start.position, tangent, end.position, out float positionT);
                     float rotationT = ProgressForRotation(targetPose.rotation, start.rotation, end.rotation);
 
-                    score = GrabPoseHelper.CalculateBestPoseAtSurface(targetPose, out testPose, scoringModifier, relativeTo,
-                        (in Pose target, Transform relativeTo) =>
+                    score = GrabPoseHelper.CalculateBestPoseAtSurface(targetPose, reference, out testPose, scoringModifier,
+                        (in Pose target, in Pose original) =>
                         {
                             Pose result;
                             result.position = EvaluateBezier(start.position, tangent, end.position, positionT);
@@ -97,7 +98,7 @@ namespace Oculus.Interaction.Grab.GrabSurfaces
                             return result;
 
                         },
-                        (in Pose target, Transform relativeTo) =>
+                        (in Pose target, in Pose original) =>
                         {
                             Pose result;
                             result.position = EvaluateBezier(start.position, tangent, end.position, rotationT);
@@ -115,11 +116,12 @@ namespace Oculus.Interaction.Grab.GrabSurfaces
             return bestScore;
         }
 
-        public bool CalculateBestPoseAtSurface(Ray targetRay, out Pose bestPose, Transform relativeTo)
+        public bool CalculateBestPoseAtSurface(Ray targetRay, in Pose reference, out Pose bestPose)
         {
+            Pose relativePose = _relativeTo.GetPose();
             Pose testPose = Pose.identity;
             Pose targetPose = Pose.identity;
-            bestPose = Pose.identity;
+            bestPose = reference;
             bool poseFound = false;
             GrabPoseScore bestScore = GrabPoseScore.Max;
             for (int i = 0; i < _controlPoints.Count; i++)
@@ -127,16 +129,16 @@ namespace Oculus.Interaction.Grab.GrabSurfaces
                 BezierControlPoint currentControlPoint = _controlPoints[i];
                 BezierControlPoint nextControlPoint = _controlPoints[(i + 1) % _controlPoints.Count];
 
-                if (!currentControlPoint.Disconnected
-                    && nextControlPoint.Disconnected)
+                if (!currentControlPoint.disconnected
+                    && nextControlPoint.disconnected)
                 {
                     continue;
                 }
 
-                if ((currentControlPoint.Disconnected && nextControlPoint.Disconnected)
+                if ((currentControlPoint.disconnected && nextControlPoint.disconnected)
                     || _controlPoints.Count == 1)
                 {
-                    Pose worldPose = currentControlPoint.GetPose(relativeTo);
+                    Pose worldPose = currentControlPoint.WorldSpacePose(relativePose);
                     Plane plane = new Plane(-targetRay.direction, worldPose.position);
                     if (!plane.Raycast(targetRay, out float enter))
                     {
@@ -147,9 +149,9 @@ namespace Oculus.Interaction.Grab.GrabSurfaces
                 }
                 else
                 {
-                    Pose start = currentControlPoint.GetPose(relativeTo);
-                    Pose end = nextControlPoint.GetPose(relativeTo);
-                    Vector3 tangent = currentControlPoint.GetTangent(relativeTo);
+                    Pose start = currentControlPoint.WorldSpacePose(relativePose);
+                    Pose end = nextControlPoint.WorldSpacePose(relativePose);
+                    Vector3 tangent = start.position + relativePose.rotation * currentControlPoint.tangentPoint;
                     Plane plane = GenerateRaycastPlane(start.position, tangent, end.position, -targetRay.direction);
                     if (!plane.Raycast(targetRay, out float enter))
                     {
@@ -161,7 +163,7 @@ namespace Oculus.Interaction.Grab.GrabSurfaces
                     testPose.rotation = Quaternion.Slerp(start.rotation, end.rotation, t);
                 }
 
-                GrabPoseScore score = new GrabPoseScore(targetPose.position, testPose.position);
+                GrabPoseScore score =  new GrabPoseScore(targetPose.position, testPose.position);
                 if (score.IsBetterThan(bestScore))
                 {
                     bestScore = score;
@@ -268,20 +270,12 @@ namespace Oculus.Interaction.Grab.GrabSurfaces
 
         public IGrabSurface CreateMirroredSurface(GameObject gameObject)
         {
-            BezierGrabSurface mirroredSurface = gameObject.AddComponent<BezierGrabSurface>();
-            mirroredSurface._controlPoints = new List<BezierControlPoint>();
-            foreach (BezierControlPoint controlPoint in _controlPoints)
-            {
-                Pose pose = controlPoint.GetPose(_relativeTo);
-                pose.rotation = pose.rotation * Quaternion.Euler(180f, 180f, 0f);
-                controlPoint.SetPose(pose, _relativeTo);
-                mirroredSurface._controlPoints.Add(controlPoint);
-
-            }
-            return mirroredSurface;
+            BezierGrabSurface surface = gameObject.AddComponent<BezierGrabSurface>();
+            surface._controlPoints = new List<BezierControlPoint>(_controlPoints);
+            return surface;
         }
 
-        public Pose MirrorPose(in Pose gripPose, Transform relativeTo)
+        public Pose MirrorPose(in Pose gripPose)
         {
             return gripPose;
         }
@@ -296,11 +290,9 @@ namespace Oculus.Interaction.Grab.GrabSurfaces
         }
 
         #region Inject
-        public void InjectAllBezierSurface(List<BezierControlPoint> controlPoints,
-            Transform relativeTo)
+        public void InjectAllBezierSurface(List<BezierControlPoint> controlPoints)
         {
             InjectControlPoints(controlPoints);
-            InjectRelativeTo(relativeTo);
         }
 
         public void InjectControlPoints(List<BezierControlPoint> controlPoints)
@@ -318,47 +310,19 @@ namespace Oculus.Interaction.Grab.GrabSurfaces
     [Serializable]
     public struct BezierControlPoint
     {
-        [SerializeField]
-        [FormerlySerializedAs("pose")]
-        private Pose _pose;
-        [SerializeField]
-        [FormerlySerializedAs("tangentPoint")]
-        private Vector3 _tangentPoint;
-        [SerializeField]
-        [FormerlySerializedAs("disconnected")]
-        private bool _disconnected;
+        public Pose pose;
+        public Vector3 tangentPoint;
+        public bool disconnected;
 
-        public bool Disconnected
+        public Pose WorldSpacePose(in Pose relativePose)
         {
-            get
-            {
-                return _disconnected;
-            }
-            set
-            {
-                _disconnected = value;
-            }
+            return PoseUtils.Multiply(relativePose, pose);
         }
 
-        public Pose GetPose(Transform relativeTo)
+        public static readonly BezierControlPoint DEFAULT = new BezierControlPoint()
         {
-            return PoseUtils.GlobalPoseScaled(relativeTo, _pose);
-        }
-
-        public void SetPose(in Pose worldSpacePose, Transform relativeTo)
-        {
-            _pose = PoseUtils.DeltaScaled(relativeTo, worldSpacePose);
-        }
-
-        public Vector3 GetTangent(Transform relativeTo)
-        {
-            return relativeTo.TransformPoint(_tangentPoint);
-        }
-
-        public void SetTangent(in Vector3 tangent, Transform relativeTo)
-        {
-            _tangentPoint = relativeTo.InverseTransformPoint(tangent);
-        }
-
+            pose = Pose.identity,
+            tangentPoint = new Vector3(0.1f, 0f, 0.1f)
+        };
     }
 }

@@ -7,8 +7,7 @@
         "Unity.XR.OpenXR",
         "Unity.XR.OpenXR.Editor",
         "Unity.XR.Management",
-        "Unity.XR.Management.Editor",
-        "Unity.RenderPipelines.Universal.Runtime"
+        "Unity.XR.Management.Editor"
     ],
     "includePlatforms": [
         "Editor"
@@ -39,11 +38,6 @@
             "name": "com.unity.xr.oculus",
             "expression": "1.4.0",
             "define": "USING_COMPATIBLE_OCULUS_XR_PLUGIN_VERSION"
-        },
-        {
-            "name": "com.unity.render-pipelines.universal",
-            "expression": "",
-            "define": "USING_URP"
         },
         {
             "name": "com.unity.xr.oculus",

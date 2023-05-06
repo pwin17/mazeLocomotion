@@ -35,7 +35,7 @@ namespace Oculus.Interaction.Locomotion
         /// Hand that will be performing the Turn and Teleport
         /// </summary>
         [SerializeField, Interface(typeof(IHand))]
-        private UnityEngine.Object _hand;
+        private MonoBehaviour _hand;
         private IHand Hand { get; set; }
 
         /// <summary>
@@ -69,14 +69,14 @@ namespace Oculus.Interaction.Locomotion
         /// gate will enter Teleport or Turning mode
         /// </summary>
         [SerializeField, Interface(typeof(IActiveState))]
-        private UnityEngine.Object _enableShape;
+        private MonoBehaviour _enableShape;
         private IActiveState EnableShape { get; set; }
 
         /// <summary>
         /// When active, the gate will exit Teleport and Turning modes
         /// </summary>
         [SerializeField, Interface(typeof(IActiveState))]
-        private UnityEngine.Object _disableShape;
+        private MonoBehaviour _disableShape;
         private IActiveState DisableShape { get; set; }
 
         /// <summary>
@@ -246,7 +246,7 @@ namespace Oculus.Interaction.Locomotion
 
         public void InjectHand(IHand hand)
         {
-            _hand = hand as UnityEngine.Object;
+            _hand = hand as MonoBehaviour;
             Hand = hand;
         }
 
@@ -257,13 +257,13 @@ namespace Oculus.Interaction.Locomotion
 
         public void InjectEnableShape(IActiveState enableShape)
         {
-            _enableShape = enableShape as UnityEngine.Object;
+            _enableShape = enableShape as MonoBehaviour;
             EnableShape = enableShape;
         }
 
         public void InjectDisableShape(IActiveState disableShape)
         {
-            _disableShape = disableShape as UnityEngine.Object;
+            _disableShape = disableShape as MonoBehaviour;
             DisableShape = disableShape;
         }
 

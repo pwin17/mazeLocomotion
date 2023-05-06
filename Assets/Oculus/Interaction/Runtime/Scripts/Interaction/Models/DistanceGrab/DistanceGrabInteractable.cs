@@ -32,6 +32,9 @@ namespace Oculus.Interaction
     public class DistanceGrabInteractable : PointerInteractable<DistanceGrabInteractor, DistanceGrabInteractable>,
         IRigidbodyRef, IRelativeToRef, ICollidersRef
     {
+        [SerializeField, Interface(typeof(IPointableElement))]
+        private MonoBehaviour _pointableElement;
+
         private Collider[] _colliders;
         public Collider[] Colliders => _colliders;
 
@@ -54,7 +57,7 @@ namespace Oculus.Interaction
         /// </summary>
         [Header("Snap")]
         [SerializeField, Optional, Interface(typeof(IMovementProvider))]
-        private UnityEngine.Object _movementProvider;
+        private MonoBehaviour _movementProvider;
         private IMovementProvider MovementProvider { get; set; }
 
         #region Properties
@@ -88,6 +91,7 @@ namespace Oculus.Interaction
         {
             base.Awake();
             MovementProvider = _movementProvider as IMovementProvider;
+            PointableElement = _pointableElement as IPointableElement;
         }
 
         protected override void Start()
@@ -104,6 +108,7 @@ namespace Oculus.Interaction
             {
                 _grabSource = Rigidbody.transform;
             }
+            this.AssertField(PointableElement, nameof(PointableElement));
             this.EndStart(ref _started);
         }
 
@@ -127,14 +132,21 @@ namespace Oculus.Interaction
 
         #region Inject
 
-        public void InjectAllGrabInteractable(Rigidbody rigidbody)
+        public void InjectAllGrabInteractable(Rigidbody rigidbody, IPointableElement pointableElement)
         {
             InjectRigidbody(rigidbody);
+            InjectPointableElement(pointableElement);
         }
 
         public void InjectRigidbody(Rigidbody rigidbody)
         {
             _rigidbody = rigidbody;
+        }
+
+        public void InjectPointableElement(IPointableElement pointableElement)
+        {
+            PointableElement = pointableElement;
+            _pointableElement = pointableElement as MonoBehaviour;
         }
 
         public void InjectOptionalGrabSource(Transform grabSource)
@@ -149,7 +161,7 @@ namespace Oculus.Interaction
 
         public void InjectOptionalMovementProvider(IMovementProvider provider)
         {
-            _movementProvider = provider as UnityEngine.Object;
+            _movementProvider = provider as MonoBehaviour;
             MovementProvider = provider;
         }
         #endregion

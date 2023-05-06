@@ -26,7 +26,7 @@ namespace Oculus.Interaction.Locomotion
     public class ArcRangeModifier : MonoBehaviour
     {
         [SerializeField, Interface(typeof(ITeleportArc))]
-        private UnityEngine.Object _teleportArc;
+        private MonoBehaviour _teleportArc;
         private ITeleportArc TeleportArc { get; set; }
 
         [SerializeField]
@@ -77,7 +77,7 @@ namespace Oculus.Interaction.Locomotion
 
         public void InjectTeleportArc(ITeleportArc teleportArc)
         {
-            _teleportArc = teleportArc as UnityEngine.Object;
+            _teleportArc = teleportArc as MonoBehaviour;
             TeleportArc = teleportArc;
         }
 

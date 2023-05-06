@@ -30,7 +30,7 @@ namespace Oculus.Interaction
     public class HandWristOffset : MonoBehaviour
     {
         [SerializeField, Interface(typeof(IHand))]
-        private UnityEngine.Object _hand;
+        private MonoBehaviour _hand;
         public IHand Hand { get; private set; }
 
         [SerializeField]
@@ -146,7 +146,7 @@ namespace Oculus.Interaction
         #region Inject
         public void InjectHand(IHand hand)
         {
-            _hand = hand as UnityEngine.Object;
+            _hand = hand as MonoBehaviour;
             Hand = hand;
         }
         public void InjectOffset(Vector3 offset)

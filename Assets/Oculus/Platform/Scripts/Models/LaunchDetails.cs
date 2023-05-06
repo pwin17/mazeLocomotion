@@ -22,6 +22,10 @@ namespace Oculus.Platform.Models
     /// presence.
     public readonly string LaunchSource;
     public readonly LaunchType LaunchType;
+    /// DEPRECATED. Will be removed from headers at version v51.
+    ///
+    /// If provided, the intended room the user would like to be in
+    public readonly UInt64 RoomID;
     /// A unique identifer to keep track of a user going through the deeplinking
     /// flow
     public readonly string TrackingID;
@@ -38,6 +42,7 @@ namespace Oculus.Platform.Models
       DestinationApiName = CAPI.ovr_LaunchDetails_GetDestinationApiName(o);
       LaunchSource = CAPI.ovr_LaunchDetails_GetLaunchSource(o);
       LaunchType = CAPI.ovr_LaunchDetails_GetLaunchType(o);
+      RoomID = CAPI.ovr_LaunchDetails_GetRoomID(o);
       TrackingID = CAPI.ovr_LaunchDetails_GetTrackingID(o);
       {
         var pointer = CAPI.ovr_LaunchDetails_GetUsers(o);

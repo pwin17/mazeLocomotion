@@ -43,7 +43,7 @@ namespace Oculus.Interaction.Samples
         private List<LocomotionEvent.RotationType> _consumeRotationEvents = new List<LocomotionEvent.RotationType>();
 
         [SerializeField, Interface(typeof(ILocomotionEventHandler))]
-        private UnityEngine.Object _locomotionHandler;
+        private MonoBehaviour _locomotionHandler;
         private ILocomotionEventHandler LocomotionHandler;
 
         public UnityEvent WhenCompleted;
@@ -175,7 +175,7 @@ namespace Oculus.Interaction.Samples
 
         public void InjectLocomotionHandler(ILocomotionEventHandler locomotionHandler)
         {
-            _locomotionHandler = locomotionHandler as UnityEngine.Object;
+            _locomotionHandler = locomotionHandler as MonoBehaviour;
             LocomotionHandler = locomotionHandler;
         }
 

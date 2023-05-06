@@ -20,12 +20,9 @@
 
 using System.Collections.Generic;
 using System;
-using System.ComponentModel;
 using System.Linq;
 using UnityEditor;
-using UnityEditor.SceneManagement;
 using UnityEngine;
-using Component = UnityEngine.Component;
 
 /// <summary>
 /// Custom Editor for <see cref="OVRCustomFace">
@@ -91,50 +88,34 @@ internal sealed class OVRCustomFaceEditor : Editor
 
         EditorGUILayout.Space();
 
-        var face = (OVRCustomFace)target;
-		var enumValues = Enum.GetNames(typeof(OVRCustomFace.RetargetingType));
-        face.retargetingType = (OVRCustomFace.RetargetingType)
-	        EditorGUILayout.Popup("Custom face structure", (int)face.retargetingType, enumValues);
+        _showBlendshapes = EditorGUILayout.BeginFoldoutHeaderGroup(_showBlendshapes, "Blendshapes");
 
-		if (face.retargetingType == OVRCustomFace.RetargetingType.OculusFace
-		    )
-		{
-			_showBlendshapes = EditorGUILayout.BeginFoldoutHeaderGroup(_showBlendshapes, "Blendshapes");
-			if (_showBlendshapes)
-			{
-				if (GUILayout.Button("Auto Generate Mapping"))
-				{
-					face.AutoMapBlendshapes(face.retargetingType);
-					Refresh(face);
-				}
+        if(_showBlendshapes)
+        {
+            if(GUILayout.Button("Auto Generate Mapping"))
+            {
+                OVRFaceExpressions.FaceExpression[] generatedMapping = AutoGenerateMapping(renderer.sharedMesh);
 
-				if (GUILayout.Button("Clear Mapping"))
-				{
-					face.ClearBlendshapes();
-					Refresh(face);
-				}
+                for (int i = 0; i < renderer.sharedMesh.blendShapeCount; ++i)
+                {
+                    _mappings.GetArrayElementAtIndex(i).enumValueIndex = (int)generatedMapping[i];
+                }
+            }
 
-				EditorGUILayout.Space();
+            EditorGUILayout.Space();
 
-				for (int i = 0; i < renderer.sharedMesh.blendShapeCount; ++i)
-				{
-					EditorGUILayout.PropertyField(_mappings.GetArrayElementAtIndex(i), new GUIContent(renderer.sharedMesh.GetBlendShapeName(i)));
-				}
-			}
-		}
+            for (int i = 0; i < renderer.sharedMesh.blendShapeCount; ++i)
+            {
+                EditorGUILayout.PropertyField(_mappings.GetArrayElementAtIndex(i), new GUIContent(renderer.sharedMesh.GetBlendShapeName(i)));
+            }
+        }
 
-		EditorGUILayout.EndFoldoutHeaderGroup();
+        EditorGUILayout.EndFoldoutHeaderGroup();
 
         serializedObject.ApplyModifiedProperties();
+    }
 
-		static void Refresh(OVRCustomFace face)
-		{
-			EditorUtility.SetDirty(face);
-			EditorSceneManager.MarkSceneDirty(face.gameObject.scene);
-		}
-	}
-
-	private static OVRFaceExpressions FindFaceExpressionsComponent(SerializedProperty property)
+    private static OVRFaceExpressions FindFaceExpressionsComponent(SerializedProperty property)
     {
         GameObject targetObject = GetGameObject(property);
 
@@ -176,7 +157,7 @@ internal sealed class OVRCustomFaceEditor : Editor
     /// </remarks>
     /// <param name="skinnedMesh">The mesh to find a mapping for.</param>
     /// <returns>Returns an array of <see cref="OVRFaceExpressions.FaceExpression"/> of the same length as the number of blendshapes on the <paramref name="skinnedMesh"/> with each element identifying the closest found match</returns>
-    internal static OVRFaceExpressions.FaceExpression[] AutoGenerateMapping(Mesh skinnedMesh)
+    private static OVRFaceExpressions.FaceExpression[] AutoGenerateMapping(Mesh skinnedMesh)
     {
         var result = new OVRFaceExpressions.FaceExpression[skinnedMesh.blendShapeCount];
 
@@ -243,42 +224,4 @@ internal sealed class OVRCustomFaceEditor : Editor
     }
 
     private static string SplitCamelCase(string input) => System.Text.RegularExpressions.Regex.Replace(input, "([A-Z])", " $1", System.Text.RegularExpressions.RegexOptions.Compiled).Trim();
-}
-
-public static class OVRCustomFaceEditorExtensions
-{
-	public static void AutoMapBlendshapes(this OVRCustomFace customFace, OVRCustomFace.RetargetingType type)
-	{
-		var renderer = customFace.GetComponent<SkinnedMeshRenderer>();
-
-		try
-		{
-			switch (type)
-			{
-				case OVRCustomFace.RetargetingType.OculusFace:
-					OVRFaceExpressions.FaceExpression[] generatedMapping = OVRCustomFaceEditor.AutoGenerateMapping(renderer.sharedMesh);
-					for (int i = 0; i < renderer.sharedMesh.blendShapeCount; ++i)
-					{
-						customFace._mappings[i] = generatedMapping[i];
-					}
-					break;
-				default:
-					throw new InvalidEnumArgumentException($"Invalid {nameof(OVRCustomFace.RetargetingType)}");
-			}
-		}
-		catch (Exception e)
-		{
-			EditorUtility.DisplayDialog($"Auto Map Bones Error", e.Message, "Ok");
-		}
-	}
-
-	public static void ClearBlendshapes(this OVRCustomFace customFace)
-	{
-		var renderer = customFace.GetComponent<SkinnedMeshRenderer>();
-		for (int i = 0; i < renderer.sharedMesh.blendShapeCount; ++i)
-		{
-			customFace._mappings[i] = OVRFaceExpressions.FaceExpression.Max;
-		}
-
-	}
 }

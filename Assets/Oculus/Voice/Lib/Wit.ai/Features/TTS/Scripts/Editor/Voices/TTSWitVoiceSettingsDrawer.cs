@@ -12,9 +12,8 @@ using System.Reflection;
 using UnityEditor;
 using Meta.WitAi.TTS.Integrations;
 using Meta.WitAi.Windows;
+using Meta.WitAi;
 using Meta.WitAi.Data.Info;
-using Meta.WitAi.Lib;
-using Meta.WitAi.Data.Configuration;
 using UnityEngine;
 
 namespace Meta.WitAi.TTS.Editor.Voices
@@ -33,7 +32,6 @@ namespace Meta.WitAi.TTS.Editor.Voices
 
         // Voice data
         private IWitRequestConfiguration _configuration;
-        private bool _configUpdating;
         private WitVoiceInfo[] _voices;
         private string[] _voiceNames;
 
@@ -184,7 +182,6 @@ namespace Meta.WitAi.TTS.Editor.Voices
                 _configuration = configuration;
                 _voices = null;
                 _voiceNames = null;
-                _configUpdating = false;
             }
             // Ignore if null
             if (configuration == null)
@@ -192,30 +189,13 @@ namespace Meta.WitAi.TTS.Editor.Voices
                 return;
             }
             // Ignore if already set up
-            if (_voices != null && _voiceNames != null && !_configUpdating)
+            if (_voices != null && _voiceNames != null)
             {
                 return;
             }
-            // Get voices
+            // Get voices & voice names
             _voices = configuration.GetApplicationInfo().voices;
             _voiceNames = _voices?.Select(voice => voice.name).ToArray();
-
-            // Voices found!
-            if (_voices != null && _voices.Length > 0)
-            {
-                _configUpdating = false;
-            }
-            // Configuration needs voices, perform update
-            else if (!_configUpdating)
-            {
-                // Perform update if possible
-                if (_configuration is WitConfiguration witConfig && !witConfig.IsUpdatingData())
-                {
-                    witConfig.RefreshAppInfo();
-                }
-                // Now updating
-                _configUpdating = true;
-            }
         }
         // Get voice index
         private int GetVoiceIndex(SerializedProperty property)

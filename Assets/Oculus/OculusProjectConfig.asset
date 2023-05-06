@@ -24,7 +24,6 @@ MonoBehaviour:
   bodyTrackingSupport: 0
   faceTrackingSupport: 0
   eyeTrackingSupport: 0
-  virtualKeyboardSupport: 0
   disableBackups: 1
   enableNSCConfig: 1
   securityXmlPath: 

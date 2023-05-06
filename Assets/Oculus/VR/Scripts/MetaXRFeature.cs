@@ -128,12 +128,7 @@ namespace Meta.XR
 		{
 			// here's one way you can grab the instance
 			Debug.Log($"[MetaXRFeature] OnInstanceCreate: {xrInstance}");
-			bool result = OVRPlugin.UnityOpenXR.OnInstanceCreate(xrInstance);
-			if (!result)
-			{
-				Debug.LogWarning("[MetaXRFeature] OnInstanceCreate returned an error. If you are using Quest Link, please verify if it's started.");
-			}
-			return result;
+			return OVRPlugin.UnityOpenXR.OnInstanceCreate(xrInstance);
 		}
 
 		/// <inheritdoc />

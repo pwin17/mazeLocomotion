@@ -27,7 +27,7 @@ namespace Oculus.Interaction
     public class SelectorDebugVisual : MonoBehaviour
     {
         [SerializeField, Interface(typeof(ISelector))]
-        private UnityEngine.Object _selector;
+        private MonoBehaviour _selector;
 
         [SerializeField]
         private Renderer _renderer;
@@ -133,7 +133,7 @@ namespace Oculus.Interaction
 
         public void InjectSelector(ISelector selector)
         {
-            _selector = selector as UnityEngine.Object;
+            _selector = selector as MonoBehaviour;
             Selector = selector;
         }
 

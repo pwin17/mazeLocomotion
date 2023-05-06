@@ -216,13 +216,28 @@ internal static class OVRSpaceQuery
             if (_uuidFilter != null)
             {
                 filterType = OVRPlugin.SpaceQueryFilterType.Ids;
-                foreach (var id in _uuidFilter.ToNonAlloc())
+                if (_uuidFilter is IReadOnlyList<Guid> list)
                 {
-                    if (numIds >= MaxUuidCount)
+                    if (list.Count > MaxUuidCount)
                         throw new InvalidOperationException(
                             $"{nameof(UuidFilter)} must not contain more than {MaxUuidCount} UUIDs.");
 
-                    Ids[numIds++] = id;
+                    numIds = list.Count;
+                    for (var i = 0; i < numIds; i++)
+                    {
+                        Ids[i] = list[i];
+                    }
+                }
+                else
+                {
+                    foreach (var id in _uuidFilter)
+                    {
+                        if (numIds >= MaxUuidCount)
+                            throw new InvalidOperationException(
+                                $"{nameof(UuidFilter)} must not contain more than {MaxUuidCount} UUIDs.");
+
+                        Ids[numIds++] = id;
+                    }
                 }
             }
             else if (_componentFilter != 0)

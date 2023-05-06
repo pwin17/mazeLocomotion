@@ -31,11 +31,11 @@ namespace Oculus.Interaction
     public class SecondaryInteractorFilter : MonoBehaviour, IGameObjectFilter
     {
         [SerializeField, Interface(typeof(IInteractable))]
-        private UnityEngine.Object _primaryInteractable;
+        private MonoBehaviour _primaryInteractable;
         public IInteractable PrimaryInteractable { get; private set; }
 
         [SerializeField, Interface(typeof(IInteractable))]
-        private UnityEngine.Object _secondaryInteractable;
+        private MonoBehaviour _secondaryInteractable;
         public IInteractable SecondaryInteractable { get; private set; }
 
         [SerializeField]
@@ -169,13 +169,13 @@ namespace Oculus.Interaction
         private void InjectPrimaryInteractable(IInteractable interactableView)
         {
             PrimaryInteractable = interactableView;
-            _primaryInteractable = interactableView as UnityEngine.Object;
+            _primaryInteractable = interactableView as MonoBehaviour;
         }
 
         private void InjectSecondaryInteractable(IInteractable interactable)
         {
             SecondaryInteractable = interactable;
-            _secondaryInteractable = interactable as UnityEngine.Object;
+            _secondaryInteractable = interactable as MonoBehaviour;
         }
 
         private void InjectSelectRequired(bool selectRequired)

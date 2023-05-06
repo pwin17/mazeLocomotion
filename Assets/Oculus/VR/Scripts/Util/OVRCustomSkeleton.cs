@@ -40,7 +40,6 @@ public class OVRCustomSkeleton : OVRSkeleton, ISerializationCallbackReceiver
 
 	protected override Transform GetBoneTransform(BoneId boneId) => _customBones_V2[(int)boneId];
 
-
 #if UNITY_EDITOR
 	private bool _shouldSetDirty;
 
@@ -80,7 +79,7 @@ public class OVRCustomSkeleton : OVRSkeleton, ISerializationCallbackReceiver
 	{
 		_skeletonType = skeletonType;
 		_customBones_V2 ??= new List<Transform>();
-
+		
 		AllocateBones();
 	}
 }

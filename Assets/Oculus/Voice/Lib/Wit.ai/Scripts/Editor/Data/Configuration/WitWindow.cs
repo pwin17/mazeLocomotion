@@ -38,18 +38,16 @@ namespace Meta.WitAi.Windows
 
         protected virtual void SetWitEditor()
         {
-            // Destroy inspector
-            if (witInspector != null)
-            {
-                DestroyImmediate(witInspector);
-                witInspector = null;
-            }
-            // Generate new inspector & initialize immediately
             if (witConfiguration)
             {
                 witInspector = (WitConfigurationEditor)Editor.CreateEditor(witConfiguration);
                 witInspector.drawHeader = false;
                 witInspector.Initialize();
+            }
+            else if (witInspector != null)
+            {
+                DestroyImmediate(witInspector);
+                witInspector = null;
             }
         }
 
@@ -110,12 +108,11 @@ namespace Meta.WitAi.Windows
                 {
                     WitAuthUtility.ServerToken = serverToken;
                 }
-                // Open New & Close
+                // Generate new configuration
+                OpenConfigGenerationWindow();
+                // Generate new & Close
                 if (closeIfInvalid)
                 {
-                    // Generate new configuration
-                    OpenConfigGenerationWindow();
-                    // Close
                     Close();
                 }
                 return;

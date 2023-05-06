@@ -40,6 +40,11 @@ namespace Oculus.Platform
       get { return size; }
     }
 
+    public SendPolicy Policy
+    {
+      get { return (SendPolicy)CAPI.ovr_Packet_GetSendPolicy(packetHandle); }
+    }
+
     #region IDisposable
 
     ~Packet()

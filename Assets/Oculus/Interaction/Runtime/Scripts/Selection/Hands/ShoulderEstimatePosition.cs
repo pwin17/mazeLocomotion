@@ -32,11 +32,11 @@ namespace Oculus.Interaction
     public class ShoulderEstimatePosition : MonoBehaviour
     {
         [SerializeField, Interface(typeof(IHmd))]
-        private UnityEngine.Object _hmd;
+        private MonoBehaviour _hmd;
         private IHmd Hmd { get; set; }
 
         [SerializeField, Interface(typeof(IHand))]
-        private UnityEngine.Object _hand;
+        private MonoBehaviour _hand;
         private IHand Hand { get; set; }
 
         private static readonly Vector3 ShoulderOffset = new Vector3(0.13f, -0.25f, -0.13f);
@@ -98,13 +98,13 @@ namespace Oculus.Interaction
 
         public void InjectHmd(IHmd hmd)
         {
-            _hmd = hmd as UnityEngine.Object;
+            _hmd = hmd as MonoBehaviour;
             Hmd = hmd;
         }
 
         public void InjectHand(IHand hand)
         {
-            _hand = hand as UnityEngine.Object;
+            _hand = hand as MonoBehaviour;
             Hand = hand;
         }
 

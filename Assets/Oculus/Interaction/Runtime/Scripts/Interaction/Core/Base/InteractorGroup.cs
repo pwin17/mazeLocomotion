@@ -27,15 +27,15 @@ namespace Oculus.Interaction
     public abstract class InteractorGroup : MonoBehaviour, IInteractor
     {
         [SerializeField, Interface(typeof(IInteractor))]
-        protected List<UnityEngine.Object> _interactors;
+        protected List<MonoBehaviour> _interactors;
         protected List<IInteractor> Interactors;
 
         [SerializeField, Interface(typeof(IActiveState)), Optional]
-        private UnityEngine.Object _activeState;
+        private MonoBehaviour _activeState;
         private IActiveState ActiveState = null;
 
         [SerializeField, Interface(typeof(ICandidateComparer)), Optional]
-        protected UnityEngine.Object _candidateComparer;
+        protected MonoBehaviour _candidateComparer;
         protected ICandidateComparer CandidateComparer = null;
 
         [SerializeField]
@@ -411,13 +411,13 @@ namespace Oculus.Interaction
         public void InjectOptionalActiveState(IActiveState activeState)
         {
             ActiveState = activeState;
-            _activeState = activeState as UnityEngine.Object;
+            _activeState = activeState as MonoBehaviour;
         }
 
         public void InjectOptionalCandidateComparer(ICandidateComparer candidateComparer)
         {
             CandidateComparer = candidateComparer;
-            _candidateComparer = candidateComparer as UnityEngine.Object;
+            _candidateComparer = candidateComparer as MonoBehaviour;
         }
         #endregion
 

@@ -45,7 +45,7 @@ namespace Meta.WitAi.TTS.Editor.Preload
             string assetPath = savePath.Replace("\\", "/");
             if (!assetPath.StartsWith(Application.dataPath))
             {
-                VLog.E(
+                Debug.LogError(
                     $"TTS Preload Utility - Cannot Create Setting Outside of Assets Directory\nPath: {assetPath}");
                 return null;
             }
@@ -111,7 +111,7 @@ namespace Meta.WitAi.TTS.Editor.Preload
             // Unload previous coroutine performer
             if (_performer != null)
             {
-                _performer.gameObject.DestroySafely();
+                MonoBehaviour.DestroyImmediate(_performer.gameObject);
                 _performer = null;
             }
 
@@ -364,21 +364,21 @@ namespace Meta.WitAi.TTS.Editor.Preload
             // Check for file
             if (!File.Exists(textFilePath))
             {
-                VLog.E($"TTS Preload Utility - Preload file does not exist\nPath: {textFilePath}");
+                Debug.LogError($"TTS Preload Utility - Preload file does not exist\nPath: {textFilePath}");
                 return false;
             }
             // Load file
             string textFileContents = File.ReadAllText(textFilePath);
             if (string.IsNullOrEmpty(textFileContents))
             {
-                VLog.E($"TTS Preload Utility - Preload file load failed\nPath: {textFilePath}");
+                Debug.LogError($"TTS Preload Utility - Preload file load failed\nPath: {textFilePath}");
                 return false;
             }
             // Parse file
             WitResponseNode node = WitResponseNode.Parse(textFileContents);
             if (node == null)
             {
-                VLog.E($"TTS Preload Utility - Preload file parse failed\nPath: {textFilePath}");
+                Debug.LogError($"TTS Preload Utility - Preload file parse failed\nPath: {textFilePath}");
                 return false;
             }
             // Iterate children for texts
@@ -424,7 +424,7 @@ namespace Meta.WitAi.TTS.Editor.Preload
             // Import
             if (preloadSettings == null)
             {
-                VLog.E("TTS Preload Utility - Import Failed - Null Preload Settings");
+                Debug.LogError("TTS Preload Utility - Import Failed - Null Preload Settings");
                 return false;
             }
 

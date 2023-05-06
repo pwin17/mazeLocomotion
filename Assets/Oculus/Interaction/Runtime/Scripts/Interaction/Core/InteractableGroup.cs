@@ -34,7 +34,7 @@ namespace Oculus.Interaction
     public class InteractableGroup : MonoBehaviour
     {
         [SerializeField, Interface(typeof(IInteractable))]
-        private List<UnityEngine.Object> _interactables;
+        private List<MonoBehaviour> _interactables;
         private List<IInteractable> Interactables;
         private List<InteractableLimits> _limits;
 
@@ -191,7 +191,7 @@ namespace Oculus.Interaction
         {
             Interactables = interactables;
             _interactables =
-                interactables.ConvertAll(interactable => interactable as UnityEngine.Object);
+                interactables.ConvertAll(interactable => interactable as MonoBehaviour);
         }
 
         public void InjectOptionalData(object data)

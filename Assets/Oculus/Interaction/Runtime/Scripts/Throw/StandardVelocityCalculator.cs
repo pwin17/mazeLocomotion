@@ -63,7 +63,7 @@ namespace Oculus.Interaction.Throw
         }
 
         [SerializeField, Interface(typeof(IPoseInputDevice))]
-        private UnityEngine.Object _throwInputDevice;
+        private MonoBehaviour _throwInputDevice;
         public IPoseInputDevice ThrowInputDevice { get; private set; }
 
         [SerializeField]
@@ -701,7 +701,7 @@ namespace Oculus.Interaction.Throw
 
         public void InjectPoseInputDevice(IPoseInputDevice poseInputDevice)
         {
-            _throwInputDevice = poseInputDevice as UnityEngine.Object;
+            _throwInputDevice = poseInputDevice as MonoBehaviour;
             ThrowInputDevice = poseInputDevice;
         }
 

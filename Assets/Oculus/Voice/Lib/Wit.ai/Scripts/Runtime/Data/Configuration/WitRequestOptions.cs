@@ -9,7 +9,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Meta.WitAi.Json;
 using Meta.WitAi.Interfaces;
 using UnityEngine;
 
@@ -35,14 +34,7 @@ namespace Meta.WitAi.Configuration
         /// <summary>
         /// A GUID - For internal use
         /// </summary>
-        [JsonProperty("requestID")]
-        public string RequestId { get; set; } = Guid.NewGuid().ToString();
-        [Obsolete("Use 'RequestId' property instead")] [JsonIgnore]
-        public string requestID
-        {
-            get => RequestId;
-            set => RequestId = value;
-        }
+        public string requestID = Guid.NewGuid().ToString();
 
         /// <summary>
         /// Additional parameters to be used for custom

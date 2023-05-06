@@ -98,13 +98,9 @@ namespace Oculus.Interaction.Editor
                 }
             }
 
-            if (field.GetCustomAttribute<OptionalAttribute>() == null)
-            {
-                Debug.LogWarning("Auto-wiring failed: no suitable targets for " +
-                                 monoBehaviour.gameObject.name + "::" + monoBehaviour.GetType().Name +
-                                 "." + field.Name + " could be found.");
-            }
-
+            Debug.LogWarning("Auto-wiring failed: no suitable targets for " +
+                             monoBehaviour.gameObject.name + "::" + monoBehaviour.GetType().Name +
+                             "." + field.Name + " could be found.");
             return false;
         }
 

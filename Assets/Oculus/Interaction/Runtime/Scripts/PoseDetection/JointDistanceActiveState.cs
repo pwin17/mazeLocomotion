@@ -31,7 +31,7 @@ namespace Oculus.Interaction.PoseDetection
     {
         [Tooltip("The IHand that JointIdA will be sourced from.")]
         [SerializeField, Interface(typeof(IHand))]
-        private UnityEngine.Object _handA;
+        private MonoBehaviour _handA;
         private IHand HandA;
 
         [Tooltip("The joint of HandA to use for distance check.")]
@@ -40,7 +40,7 @@ namespace Oculus.Interaction.PoseDetection
 
         [Tooltip("The IHand that JointIdB will be sourced from.")]
         [SerializeField, Interface(typeof(IHand))]
-        private UnityEngine.Object _handB;
+        private MonoBehaviour _handB;
         private IHand HandB;
 
         [Tooltip("The joint of HandB to use for distance check.")]
@@ -157,7 +157,7 @@ namespace Oculus.Interaction.PoseDetection
 
         public void InjectHandA(IHand handA)
         {
-            _handA = handA as UnityEngine.Object;
+            _handA = handA as MonoBehaviour;
             HandA = handA;
         }
 
@@ -168,7 +168,7 @@ namespace Oculus.Interaction.PoseDetection
 
         public void InjectHandB(IHand handB)
         {
-            _handB = handB as UnityEngine.Object;
+            _handB = handB as MonoBehaviour;
             HandB = handB;
         }
 

@@ -64,7 +64,7 @@ namespace Meta.Conduit
             return false;
         }
 
-        private bool Equals(WitKeyword other)
+        protected bool Equals(WitKeyword other)
         {
             return this.keyword.Equals(other.keyword) && this.synonyms.SequenceEqual(other.synonyms);
         }

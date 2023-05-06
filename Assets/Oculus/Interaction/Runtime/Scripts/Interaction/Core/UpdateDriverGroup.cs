@@ -25,7 +25,7 @@ namespace Oculus.Interaction
         public bool IsRootDriver { get; set; } = true;
 
         [SerializeField, Interface(typeof(IUpdateDriver))]
-        private List<UnityEngine.Object> _updateDrivers;
+        private List<MonoBehaviour> _updateDrivers;
         protected List<IUpdateDriver> Drivers;
 
         [SerializeField, Min(1)]
@@ -90,7 +90,7 @@ namespace Oculus.Interaction
         public void InjectUpdateDrivers(List<IUpdateDriver> updateDrivers)
         {
             Drivers = updateDrivers;
-            _updateDrivers = updateDrivers.ConvertAll(driver => driver as UnityEngine.Object);
+            _updateDrivers = updateDrivers.ConvertAll(driver => driver as MonoBehaviour);
         }
 
         #endregion

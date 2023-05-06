@@ -39,7 +39,7 @@ namespace Oculus.Interaction.Input
 
         [Header("OVR Data Source")]
         [SerializeField, Interface(typeof(IOVRCameraRigRef))]
-        private UnityEngine.Object _cameraRigRef;
+        private MonoBehaviour _cameraRigRef;
         private IOVRCameraRigRef CameraRigRef;
 
         [SerializeField]
@@ -50,7 +50,7 @@ namespace Oculus.Interaction.Input
         private Handedness _handedness;
 
         [SerializeField, Interface(typeof(ITrackingToWorldTransformer))]
-        private UnityEngine.Object _trackingToWorldTransformer;
+        private MonoBehaviour _trackingToWorldTransformer;
         private ITrackingToWorldTransformer TrackingToWorldTransformer;
 
         public bool ProcessLateUpdates
@@ -283,7 +283,7 @@ namespace Oculus.Interaction.Input
 
         public void InjectTrackingToWorldTransformer(ITrackingToWorldTransformer trackingToWorldTransformer)
         {
-            _trackingToWorldTransformer = trackingToWorldTransformer as UnityEngine.Object;
+            _trackingToWorldTransformer = trackingToWorldTransformer as MonoBehaviour;
             TrackingToWorldTransformer = trackingToWorldTransformer;
         }
 

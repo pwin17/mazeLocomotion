@@ -86,7 +86,7 @@ namespace Oculus.Interaction.GrabAPI
             return _fingersPinchData[(int)finger].IsPinching;
         }
 
-        public Vector3 GetWristOffsetLocal()
+        public Vector3 GetCenterOffset()
         {
             float maxStrength = float.NegativeInfinity;
             Vector3 thumbTip = _fingersPinchData[0].TipPosition;

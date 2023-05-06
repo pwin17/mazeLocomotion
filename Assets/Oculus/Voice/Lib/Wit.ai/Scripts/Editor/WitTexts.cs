@@ -23,8 +23,6 @@ namespace Meta.WitAi
             public string WitAppSettingsEndpoint;
             public string WitAppUnderstandingEndpoint;
             public string WitOpenButtonLabel;
-            public string WitDocsTitle;
-            public string WitDocsUrl;
             public string VLogLevelLabel;
             public string ConfigurationFileManagerLabel;
             public string ConfigurationFileNameLabel;
@@ -146,7 +144,7 @@ namespace Meta.WitAi
             TextAsset textAsset = Resources.Load<TextAsset>(textFilePath);
             if (textAsset == null)
             {
-                VLog.E($"WitStyles - Add localization to Resources/{textFilePath}\nLanguage: {languageID}");
+                Debug.LogError($"WitStyles - Add localization to Resources/{textFilePath}\nLanguage: {languageID}");
                 return;
             }
             Texts = JsonUtility.FromJson<WitText>(textAsset.text);

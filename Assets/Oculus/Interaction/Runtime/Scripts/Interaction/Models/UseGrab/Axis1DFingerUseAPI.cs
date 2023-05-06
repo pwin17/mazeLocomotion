@@ -30,12 +30,12 @@ namespace Oculus.Interaction
     public class Axis1DFingerUseAPI : MonoBehaviour, IFingerUseAPI
     {
         [SerializeField, Interface(typeof(IHand))]
-        private UnityEngine.Object _hand;
+        private MonoBehaviour _hand;
 
         [FormerlySerializedAs("_pressureAxis")]
         [FormerlySerializedAs("_pinchPressure")]
         [SerializeField, Interface(typeof(IAxis1D))]
-        private UnityEngine.Object _axis;
+        private MonoBehaviour _axis;
 
         protected IHand Hand;
         protected IAxis1D Axis;
@@ -70,14 +70,14 @@ namespace Oculus.Interaction
 
         public void InjectHand(IHand hand)
         {
-            _hand = hand as UnityEngine.Object;
+            _hand = hand as MonoBehaviour;
             Hand = hand;
         }
 
         public void InjectAxis(IAxis1D pinchPressure)
         {
             Axis = pinchPressure;
-            _axis = pinchPressure as UnityEngine.Object;
+            _axis = pinchPressure as MonoBehaviour;
         }
 #endregion
     }

@@ -33,7 +33,7 @@ namespace Oculus.Interaction.Locomotion
         private TubeRenderer _tubeRenderer;
 
         [SerializeField, Optional, Interface(typeof(IAxis1D))]
-        private UnityEngine.Object _progress;
+        private MonoBehaviour _progress;
         private IAxis1D Progress;
 
         [SerializeField, Min(2)]
@@ -258,7 +258,7 @@ namespace Oculus.Interaction.Locomotion
 
         public void InjectOptionalProgress(IAxis1D progress)
         {
-            _progress = progress as UnityEngine.Object;
+            _progress = progress as MonoBehaviour;
             Progress = progress;
         }
         #endregion

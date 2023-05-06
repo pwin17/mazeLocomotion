@@ -8,6 +8,8 @@ public class RedirectedWalkingNew : MonoBehaviour
     public float minTranslationGain;// = 1.0f;
     public float maxTranslationGain = 10.0f; // Increase the maximum translation gain value
     public float playAreaSize = 1.397f; // Adjust the play area size to match the physical space
+    static float PE_SHORT_DIMENSION = 4.3f;
+    static float PE_LONG_DIMENSION = 6.125F;
     public float walkingThreshold = 0.3f;
 
     public float minRotationGain = 0.9f;
@@ -36,6 +38,7 @@ public class RedirectedWalkingNew : MonoBehaviour
             previousHeadPosition = centerEyeAnchor.position;
             initialForwardRotation = centerEyeAnchor.eulerAngles.y;
         }
+        
     }
 
     void Update()
@@ -56,25 +59,26 @@ public class RedirectedWalkingNew : MonoBehaviour
         {
             Vector3 leftControllerDelta = leftController.position - previousLeftHeadPosition;
             Vector3 rightControllerDelta = rightController.position - previousRightHeadPosition;
-            Debug.Log("left :" + leftControllerDelta.magnitude);
-            Debug.Log("right :" + rightControllerDelta.magnitude);
+            // Debug.Log("left :" + leftControllerDelta.magnitude);
+            // Debug.Log("right :" + rightControllerDelta.magnitude);
 
             if (leftControllerDelta.magnitude > walkingThreshold || rightControllerDelta.magnitude > walkingThreshold)
             {
                 Vector3 averageDirection = (leftControllerDelta + rightControllerDelta) / 2;
                 Vector3 userFacingDirection = centerEyeAnchor.forward;
                 userFacingDirection.y = 0;
+                userFacingDirection.x = 0;
                 userFacingDirection.Normalize();
 
                 Vector3 movementDirection = userFacingDirection * averageDirection.magnitude;
-                Debug.Log("transform position: " + transform.position);
+                // Debug.Log("transform position: " + transform.position);
                 transform.position += movementDirection * movementSpeed * CalculateDynamicTranslationGain(centerEyeAnchor.position) * Time.deltaTime;
 
                 float currentForwardRotation = centerEyeAnchor.eulerAngles.y;
                 float rotationDelta = Mathf.DeltaAngle(initialForwardRotation, currentForwardRotation);
                 float rotationGain = CalculateDynamicRotationGain(centerEyeAnchor.position);
 
-                //transform.Rotate(0, rotationDelta * (rotationGain - 1), 0);
+                //transform.Rotate(0, rotationDelta * (rotationGain - 1) * Time.deltaTime, 0);
 
                 initialForwardRotation = currentForwardRotation;
             }
@@ -86,11 +90,22 @@ public class RedirectedWalkingNew : MonoBehaviour
 
     private float CalculateDynamicTranslationGain(Vector3 headPosition)
     {
-        Vector3 playAreaCenter = new Vector3(playAreaSize / 2.0f, headPosition.y, playAreaSize / 2.0f);
+        // Vector3 playAreaCenter = new Vector3(PE_LONG_DIMENSION / 2.0f, headPosition.y, PE_SHORT_DIMENSION / 2.0f);
+        float maxDistance;
+        Vector3 playAreaCenter = new Vector3(0.0f, 0.0f, 0.0f);
         float distanceToCenter = Vector3.Distance(headPosition, playAreaCenter);
-        float maxDistance = playAreaSize / 2.0f;
+        Debug.Log(distanceToCenter);
+        Vector3 userFacingDirection = centerEyeAnchor.forward;
+        if (Mathf.Abs(userFacingDirection.x) > Mathf.Abs(userFacingDirection.z)) // user is heading along long axis
+        {
+            maxDistance = PE_LONG_DIMENSION / 2.0f;
+        }
+        else // user is heading along short axis
+        {
+            maxDistance = PE_SHORT_DIMENSION / 2.0f;
+        }
         float dynamicTranslationGain = Mathf.Lerp(maxTranslationGain, minTranslationGain, distanceToCenter / maxDistance);
-        Debug.Log("Dynamic Translation Gain: " + dynamicTranslationGain);
+        // Debug.Log("Dynamic Translation Gain: " + dynamicTranslationGain);
         return dynamicTranslationGain;
     }
 

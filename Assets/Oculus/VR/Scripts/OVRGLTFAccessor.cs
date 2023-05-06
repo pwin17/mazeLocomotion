@@ -140,7 +140,7 @@ public class OVRGLTFAccessor
 	{
 		if (dataType != OVRGLTFType.SCALAR)
 		{
-			Debug.LogError("Tried to read non-scalar data as a float array.");
+			Debug.LogError("Tried to read non-scalar data as a uint array.");
 			return;
 		}
 
@@ -348,7 +348,7 @@ public class OVRGLTFAccessor
 		}
 	}
 
-	public byte[] ReadAsTexture(OVRBinaryChunk chunk)
+	public byte[] ReadAsKtxTexture(OVRBinaryChunk chunk)
 	{
 		if (chunk.chunkLength != bufferLength)
 		{

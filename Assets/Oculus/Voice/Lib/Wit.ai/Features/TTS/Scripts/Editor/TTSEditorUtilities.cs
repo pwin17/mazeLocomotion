@@ -56,7 +56,7 @@ namespace Meta.WitAi.TTS.Editor
                 // Log
                 if (!ignoreErrors)
                 {
-                    VLog.W($"TTS Service - A TTSService is already in scene\nGameObject: {instance.gameObject.name}");
+                    Debug.LogWarning($"TTS Service - A TTSService is already in scene\nGameObject: {instance.gameObject.name}");
                 }
 
                 // Move into parent

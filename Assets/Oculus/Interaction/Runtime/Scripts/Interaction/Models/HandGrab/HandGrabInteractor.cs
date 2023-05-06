@@ -37,7 +37,7 @@ namespace Oculus.Interaction.HandGrab
         IHandGrabState, IRigidbodyRef, IHandGrabber
     {
         [SerializeField, Interface(typeof(IHand))]
-        private UnityEngine.Object _hand;
+        private MonoBehaviour _hand;
         public IHand Hand { get; private set; }
 
         [SerializeField]
@@ -73,7 +73,7 @@ namespace Oculus.Interaction.HandGrab
         private SphereCollider _pinchCollider;
 
         [SerializeField, Interface(typeof(IVelocityCalculator)), Optional]
-        private UnityEngine.Object _velocityCalculator;
+        private MonoBehaviour _velocityCalculator;
         public IVelocityCalculator VelocityCalculator { get; set; }
 
         private HandGrabTarget _currentTarget = new HandGrabTarget();
@@ -490,7 +490,8 @@ namespace Oculus.Interaction.HandGrab
                 Pose grabPose = GetGrabAnchorPose(interactable, selectingGrabTypes,
                     out HandGrabTarget.GrabAnchor anchorMode);
                 bool poseFound = interactable.CalculateBestPose(grabPose, Hand.Scale,
-                    Hand.Handedness, ref _cachedResult);
+                    Hand.Handedness,
+                    ref _cachedResult);
 
                 if (!poseFound)
                 {
@@ -502,7 +503,7 @@ namespace Oculus.Interaction.HandGrab
                     || poseScore.IsBetterThan(bestPoseScore))
                 {
                     Pose offset = GetGrabAnchorOffset(anchorMode, grabPose);
-                    _cachedResult.RelativePose = PoseUtils.Multiply(_cachedResult.RelativePose, offset);
+                    _cachedResult.SnapPose = PoseUtils.Multiply(_cachedResult.SnapPose, offset);
                     _currentTarget.Set(interactable.RelativeTo, interactable.HandAlignment, anchorMode, _cachedResult);
 
                     bestFingerScore = fingerScore;
@@ -524,6 +525,7 @@ namespace Oculus.Interaction.HandGrab
         {
             _selectedInteractableOverride = interactable;
             SetComputeCandidateOverride(() => interactable);
+
             SetComputeShouldSelectOverride(() => ReferenceEquals(interactable, Interactable));
             SetComputeShouldUnselectOverride(() => !ReferenceEquals(interactable, SelectedInteractable), false);
         }
@@ -577,7 +579,7 @@ namespace Oculus.Interaction.HandGrab
             interactable.CalculateBestPose(grabPose,
                 Hand.Scale, Hand.Handedness, ref _cachedResult);
             Pose offset = GetGrabAnchorOffset(anchorMode, grabPose);
-            _cachedResult.RelativePose = PoseUtils.Multiply(_cachedResult.RelativePose, offset);
+            _cachedResult.SnapPose = PoseUtils.Multiply(_cachedResult.SnapPose, offset);
             _currentTarget.Set(interactable.RelativeTo, interactable.HandAlignment, anchorMode, _cachedResult);
         }
 
@@ -616,7 +618,7 @@ namespace Oculus.Interaction.HandGrab
 
         public void InjectHand(IHand hand)
         {
-            _hand = hand as UnityEngine.Object;
+            _hand = hand as MonoBehaviour;
             Hand = hand;
         }
 
@@ -652,7 +654,7 @@ namespace Oculus.Interaction.HandGrab
 
         public void InjectOptionalVelocityCalculator(IVelocityCalculator velocityCalculator)
         {
-            _velocityCalculator = velocityCalculator as UnityEngine.Object;
+            _velocityCalculator = velocityCalculator as MonoBehaviour;
             VelocityCalculator = velocityCalculator;
         }
 
