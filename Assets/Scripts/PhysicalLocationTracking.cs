@@ -5,20 +5,16 @@ using System.IO;
 
 public class PhysicalLocationTracking : MonoBehaviour
 {
-    public Transform centerEyeAnchor;
-    public Transform leftController;
-    public Transform rightController;
-    private Vector3 physicalLocation;
-    private Vector3 virtualLocation;
-    // Start is called before the first frame update
-    void Start()
+    private void OnTriggerEnter(Collider other)
     {
-        
+        Debug.Log("----------------Boundary Trigger Entering-------------");
+        Debug.Log("trigger object " + other.name);
+        IsHitting.isBoundary = true;
     }
 
-    // Update is called once per frame
-    void Update()
+    private void OnTriggerExit(Collider other)
     {
-        
+        Debug.Log("----------------Boundary Trigger Exiting-------------");
+        IsHitting.isBoundary = false;
     }
 }
