@@ -7,14 +7,15 @@ public class PhysicalLocationTracking : MonoBehaviour
 {
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log("----------------Boundary Trigger Entering-------------");
+        // Debug.Log("----------------Boundary Trigger Entering-------------");
         Debug.Log("trigger object " + other.name);
         IsHitting.isBoundary = true;
     }
 
     private void OnTriggerExit(Collider other)
     {
-        Debug.Log("----------------Boundary Trigger Exiting-------------");
+        // Debug.Log("----------------Boundary Trigger Exiting-------------");
         IsHitting.isBoundary = false;
     }
+
 }

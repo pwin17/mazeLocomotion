@@ -6,8 +6,20 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/SampleScene.unity
+    path: Assets/Scenes/IntroScene.unity
     guid: 9fc0d4010bbf28b4594072e72b8655ab
+  - enabled: 1
+    path: Assets/Scenes/Menu.unity
+    guid: 4415cdf48ec6b1a479b9bd853f67ab76
+  - enabled: 1
+    path: Assets/Scenes/HybridScene.unity
+    guid: dd2604b6e8702a842859a9ca64bb5058
+  - enabled: 1
+    path: Assets/Scenes/RDWScene.unity
+    guid: fbac9507dbf27a440bca94fb2531c0df
+  - enabled: 1
+    path: Assets/Scenes/SteeringScene.unity
+    guid: 7383bbd02ae09c64db24ec8143fbdc97
   m_configObjects:
     Unity.XR.Oculus.Settings: {fileID: 11400000, guid: fc0920975e8fe7a4eaf71cc6ccfd9824, type: 2}
     com.unity.xr.management.loader_settings: {fileID: 11400000, guid: 30ae81a04bf181e438bed12eed4397a5, type: 2}

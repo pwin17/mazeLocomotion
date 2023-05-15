@@ -17,9 +17,10 @@ public class CollectibleManager : MonoBehaviour
     public TextMeshProUGUI gameOverDisplay;
 
     private int score;
-    private float timeRemaining = 10f; // Set the initial playtime in seconds (5 minutes = 300 seconds)
+    private float timeRemaining = 600f; // Set the initial playtime in seconds (5 minutes = 300 seconds)
     private bool isGameOver = false;
-
+    public AudioSource soundEffect;
+    public AudioSource soundEffect_1;
     void Awake()
     {
         instance = this;
@@ -29,6 +30,8 @@ public class CollectibleManager : MonoBehaviour
     {
         SpawnCollectibles();
         gameOverDisplay.gameObject.SetActive(false);
+        soundEffect = GetComponent<AudioSource>();
+        soundEffect_1 = GetComponent<AudioSource>();
     }
 
     void Update()
@@ -51,12 +54,16 @@ public class CollectibleManager : MonoBehaviour
     public void IncrementScore()
     {
         score++;
+        Debug.Log("Current Score" + score);
+        soundEffect.Play();
         UpdateScoreAndTimeUI();
     }
 
     public void AddTime(float addedTime)
     {
         timeRemaining += addedTime;
+        Debug.Log("Current Time" + timeRemaining);
+        soundEffect_1.Play();
         UpdateScoreAndTimeUI();
     }
 

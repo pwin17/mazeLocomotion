@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 3525551822497261405}
   - component: {fileID: 3525551822497261404}
   - component: {fileID: 3525551822497261407}
-  - component: {fileID: 772259734900594348}
+  - component: {fileID: 3533604760382666748}
   m_Layer: 0
   m_Name: InnerWall (21)
   m_TagString: Untagged
@@ -98,7 +98,7 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1.2, y: 1, z: 1.2}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &772259734900594348
+--- !u!114 &3533604760382666748
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -107,6 +107,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 3525551822497261401}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f6d08293c4ac91c4b997f63b56389985, type: 3}
+  m_Script: {fileID: 11500000, guid: 1bb80bb697341bf498efe3b0ae403f1a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 

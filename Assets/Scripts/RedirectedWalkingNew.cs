@@ -3,10 +3,7 @@ using UnityEngine;
 public class RedirectedWalkingNew : MonoBehaviour
 {
     // Trackers
-    public Transform centerEyeAnchor, leftController, rightController;
-    // RDW Gains
-    public float minTranslationGain;// = 1.0f;
-    public float maxTranslationGain = 10.0f; // Increase the maximum translation gain value
+    public Transform centerEyeAnchor;
     public float minRotationGain = 0.9f;
     public float maxRotationGain = 1.1f;
     // Physical Boundary Size
@@ -15,31 +12,38 @@ public class RedirectedWalkingNew : MonoBehaviour
     float ELLIPSE_Y_RADIUS = PE_LONG_DIMENSION / 2.0f;
     float ELLIPSE_X_RADIUS = PE_SHORT_DIMENSION / 2.0f;
     public float walkingThreshold = 0.3f;
-    private Vector3 previousHeadPosition, previousLeftHeadPosition, previousRightHeadPosition;
-    public float movementSpeed = 12.0f;
+    private Vector3 previousHeadPosition;
     public float ConstantTranslationGain = 5.0f;
     private float initialForwardRotation;
     GameObject resetParentObj, VE;
-    bool isResetting = false;
     GameObject northBorder, eastBorder, westBorder, southBorder;
     bool drawPhysEnvMarkers = true;
+    bool isResetting = false;
 
     void Start()
     {
-        previousLeftHeadPosition = leftController.position;
-        previousRightHeadPosition = rightController.position;
-        previousHeadPosition = centerEyeAnchor.position;
+        // Vector3 startPosition = centerEyeAnchor.position;
         initialForwardRotation = centerEyeAnchor.eulerAngles.y;
         
         resetParentObj = new GameObject("Reset Parent Obj"); 
         VE = GameObject.Find("VE");
-        CenterEnv();
+        // CenterEnv();
     }
 
     void LateUpdate()
     {
+        if (OVRInput.GetDown(OVRInput.Button.One))
+            isResetting = !isResetting;
         if (IsHitting.isBoundary)
         {
+            Debug.Log("IS hitting boundary");
+            resetParentObj.transform.position = centerEyeAnchor.position;
+            resetParentObj.transform.forward = new Vector3(centerEyeAnchor.forward.x, 0.0f, centerEyeAnchor.forward.z);
+            VE.transform.parent = resetParentObj.transform;
+        }
+        else if (isResetting)
+        {
+            Debug.Log("resetting with a");
             resetParentObj.transform.position = centerEyeAnchor.position;
             resetParentObj.transform.forward = new Vector3(centerEyeAnchor.forward.x, 0.0f, centerEyeAnchor.forward.z);
             VE.transform.parent = resetParentObj.transform;
@@ -47,39 +51,43 @@ public class RedirectedWalkingNew : MonoBehaviour
         else
         {
             VE.transform.parent = null;
-            Vector3 leftControllerDelta = leftController.position - previousLeftHeadPosition;
-            Vector3 rightControllerDelta = rightController.position - previousRightHeadPosition;
-
-            if (leftControllerDelta.magnitude > walkingThreshold || rightControllerDelta.magnitude > walkingThreshold)
+            Vector3 centerEyeAnchorDelta = centerEyeAnchor.position - previousHeadPosition;
+            
+            if (Mathf.Abs(centerEyeAnchorDelta.z) > walkingThreshold)
             {
-                ApplyTranslationGain(leftControllerDelta, rightControllerDelta);
+                Debug.Log("---------------");
+                Debug.Log("Translation Gain Z happens here");
+                Vector3 currOffset = ApplyTranslationGain(Vector3.forward);
+                // RecenterBoundary(currOffset);
+                Debug.Log("---------------");
                 // ApplyRotationGain();
             }
-
-            previousLeftHeadPosition = leftController.position;
-            previousRightHeadPosition = rightController.position;
+            else if (Mathf.Abs(centerEyeAnchorDelta.x) > walkingThreshold)
+            {
+                Debug.Log("---------------");
+                Debug.Log("Translation Gain X happens here");
+                Vector3 currOffset = ApplyTranslationGain(Vector3.right);
+                Debug.Log("---------------");
+            }
         }
+        previousHeadPosition = centerEyeAnchor.position;
+        // CenterEnv();
     }
-
-    private float CalculateDynamicTranslationGain(Vector3 headPosition)
+    private Vector3 ApplyTranslationGain(Vector3 appliedDirection)
     {
-        // Vector3 playAreaCenter = new Vector3(PE_LONG_DIMENSION / 2.0f, headPosition.y, PE_SHORT_DIMENSION / 2.0f);
-        float maxDistance;
-        Vector3 playAreaCenter = new Vector3(0.0f, 0.0f, 0.0f);
-        float distanceToCenter = Vector3.Distance(headPosition, playAreaCenter);
-        Debug.Log(distanceToCenter);
         Vector3 userFacingDirection = centerEyeAnchor.forward;
-        if (Mathf.Abs(userFacingDirection.x) > Mathf.Abs(userFacingDirection.z)) // user is heading along long axis
-        {
-            maxDistance = PE_LONG_DIMENSION / 2.0f;
-        }
-        else // user is heading along short axis
-        {
-            maxDistance = PE_SHORT_DIMENSION / 2.0f;
-        }
-        float dynamicTranslationGain = Mathf.Lerp(maxTranslationGain, minTranslationGain, distanceToCenter / maxDistance);
-        // Debug.Log("Dynamic Translation Gain: " + dynamicTranslationGain);
-        return dynamicTranslationGain;
+        userFacingDirection.Normalize();
+        userFacingDirection = Vector3.Scale(userFacingDirection, appliedDirection); // only take the direction user is moving in
+        Debug.Log("User Facing Direction" + userFacingDirection);
+
+        Vector3 movementDirection = userFacingDirection;
+        float translationGain = IsHitting.isWall ? 0.0f: ConstantTranslationGain;
+        movementDirection *= translationGain;
+        Vector3 newPosition = movementDirection;
+        Vector3 prevPosition =transform.position;
+        transform.position += newPosition * Time.deltaTime;
+        Vector3 positionOffset = transform.position - prevPosition;
+        return positionOffset;
     }
 
     private float CalculateDynamicRotationGain(Vector3 headPosition)
@@ -101,45 +109,24 @@ public class RedirectedWalkingNew : MonoBehaviour
         float dynamicRotationGain = Mathf.Lerp(minRotationGain, maxRotationGain, distanceToCenter / maxDistance);
         return dynamicRotationGain;
     }
-
-
-    private void ApplyTranslationGain(Vector3 leftControllerDelta, Vector3 rightControllerDelta)
-    {
-        Vector3 averageDirection = (leftControllerDelta + rightControllerDelta) / 2;
-        Vector3 userFacingDirection = centerEyeAnchor.forward;
-        userFacingDirection.y = 0;
-        userFacingDirection.x = 0;
-        userFacingDirection.Normalize();
-
-        Vector3 movementDirection = userFacingDirection;// * averageDirection.magnitude;
-        // Debug.Log("transform position: " + transform.position);
-        // transform.position += movementDirection * movementSpeed * CalculateDynamicTranslationGain(centerEyeAnchor.position) * Time.deltaTime;
-        transform.position += movementDirection * movementSpeed * ConstantTranslationGain * Time.deltaTime;
-    }
-
     private void ApplyRotationGain()
     {
         float currentForwardRotation = centerEyeAnchor.eulerAngles.y;
         float rotationDelta = Mathf.DeltaAngle(initialForwardRotation, currentForwardRotation);
         float rotationGain = CalculateDynamicRotationGain(centerEyeAnchor.position);
-
         //transform.Rotate(0, rotationDelta * (rotationGain - 1) * Time.deltaTime, 0);
-
         initialForwardRotation = currentForwardRotation;
     }
     void CenterEnv()
     {
         Vector3 curPos = centerEyeAnchor.position;
-        Debug.Log("=================================================");
-        Debug.Log("current position " + curPos);
         Vector3 curForward = centerEyeAnchor.forward;
-        Debug.Log("current forward " + curForward);
         float headingTheta = Mathf.Atan2(curForward.z, curForward.x);
         float offsetToNorth = Vector2.SignedAngle(new Vector2(curForward.x, curForward.z), new Vector2(0.0f, 1.0f));
         float newAngle = headingTheta - (Mathf.PI/2.0f);
 
-        // Align the VE
-        // VE.transform.position = curPos + new Vector3(0.0f, -curPos.y, 0.0f);
+        // // Align the VE
+        // VE.transform.position -= playerOriginOffset;
         // VE.transform.forward = new Vector3(curForward.x, 0.0f, curForward.z);
 
         // Make the PE border
@@ -202,5 +189,13 @@ public class RedirectedWalkingNew : MonoBehaviour
 
         // boundaryMade = true;
         // envsCentered = true;
+    }
+    void RecenterBoundary(Vector3 offset)
+    {
+        Debug.Log("Recentering happens here");
+        eastBorder.transform.position += offset;
+        westBorder.transform.position += offset;
+        northBorder.transform.position += offset;
+        southBorder.transform.position += offset;
     }
 }
